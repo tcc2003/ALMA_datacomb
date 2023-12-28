@@ -1,5 +1,10 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+### 2023.Dec.28
+1. In order to differentiate the script of imaging and the subsequent analysis,I rename the script directory.
+2. 
+
+
 
 ### 2023.Nov.28-29
 Write a script to perform velocity regridding and concatenate the velocity-regridded visibilities.
