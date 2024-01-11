@@ -30,7 +30,7 @@
 # flow control #######################################
 #
 #   converting FITS files to Miriad format files
-if_fitstomiriad='yes'
+if_fitstomiriad='nyes'
 
 #   modify headers (important and hard when you're combining
 #   data taken from different observatories).
@@ -40,7 +40,7 @@ if_setheaders='nyes'
 #   MEM or clean to do this. However, MEM is somewhat tricky
 #   to control for unexperienced users. If you are not familiar
 #   with image deconvolution, it is better to use clean.
-if_imagingACA='nyes'
+if_imagingACA='yes'
 
 #
 if_im12aca='nyes'
@@ -66,8 +66,8 @@ visdir_12m="../fits/12m/"
 visdir_7m='../fits/7m/'
 
 # The ids (integers) of the data files (see the notes at the beginning).
-fields_12m=$(seq 0 1 3)
-fields_7m=$(seq 1 1 4)
+fields_12m=$(seq 0 1 0)
+fields_7m=$(seq 1 1 1)
 
 # The primary beam FWHM of the files with id=1, id=2, and id=3, i.e.,
 # for the visibility files XXX_1.fits, XXX_2.fits, and XXX_3.fits
@@ -79,7 +79,7 @@ name_12m='ALMA12m'
 name_7m='ACA7m'
 
 # spectral window
-spw=$(seq 0 1 3)
+spw=$(seq 0 1 0)
 
 # Filename of all of the ALMA 12-m visibility
 all12mvis='co_2to1_1.uv.miriad,co_2to1_2.uv.miriad' # ***
@@ -91,29 +91,30 @@ Mainvis='co_2to1_1.uv.miriad' # ***
 # A relative Tsys for adjusting weighting.
 tsys_single='60'
 
-# parameters for ACA cleaning - - - - - - - - - -
+
+##### parameters for ACA cleaning ##################
 
 # size of the initial ACA image in units of pixels
-acaimsize='128,128'
+aca_imsize='128,128'
 
 # cell size for the initial ACA image in units of arcsecond.
-acacell='0.8'
+aca_cell='0.8'
 
 # number of iterations for the initial ACA imaging (per channel)
-acaniters=1500
+aca_niters=1500
 
 # cutoff level fo the initial ACA imaging
-acacutoff=0.15
+aca_cutoff=0.15
       
 # options for the initial ACA imaging (in the clean task)
-acaoptions='positive' 
+aca_options='positive' 
       
 # The region in the ACA image to clean.
 # This is sometimes useful (e.g., when you actually neeed single-dish but doesn't have it)
-acaregion='boxes(45,45,85,85)' # ***
+aca_region='boxes(45,45,85,85)' # ***
 
 
-# paramaters for final imaging  - - - - - - - - - -
+##### paramaters for final imaging ###################
 
 # Briggs robust parameter for the final imaging.
 robust=2.0
@@ -153,36 +154,37 @@ taper='0.1,0.1' # ***
 if [ $if_fitstomiriad == 'yes' ]
 then
 
-   # 12m data
-   echo '########## Importing 12m data ##########'
-   for field_id in $fields_12m
-     do
-	# 12m data
-	filename=$name_12m'_'$field_id'.cvel.fits' 
-	outname=$name_12m'_'$field_id'.uv.miriad'
+  for spw_id in $spw
+  do 
+    # 12m data
+    echo '########## Importing 12m data ##########'
+    for field_id in $fields_12m
+      do
+ 	# 12m data
+ 	filename=$name_12m'_spw'$spw_id'_'$field_id'.cvel.fits' 
+ 	outname=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'
 	rm -rf $outname
 
-	fits in=$filename\
-        stokes='ii' \
+	fits in=$visdir_12m$filename\
         op=uvin \
         out=$outname
-     done
+      done
 
    # 7m data
-   echo '########## Importing ACA data ##########'
-   for field_id in $fields_7m
-     do
-	filename=$name_7m'_'$field_id'.cvel.fits' # ***
-	outname=$name_7m'_'$field_id'.uv.miriad'
-        rm -rf $outname
+#   echo '########## Importing ACA data ##########'
+#   for field_id in $fields_7m
+#     do
+#	filename=$name_7m'_spw'$spw_id'_'$field_id'.cvel.fits' # ***
+#	outname=$name_7m'_spw'$spw_id'_'$field_id'.uv.miriad'
+#        rm -rf $outname
 
-        fits in=$filename \
-        stokes='ii' \
-        op=uvin \
-        out=$outname
+#        fits in=$visdir_7m$filename \
+#        op=uvin \
+#        out=$outname
 
-     done
+#     done
 
+  done
 fi
 
 #################################################################
@@ -193,106 +195,117 @@ fi
 
 if [ $if_setheaders == 'yes' ]
 then
-  
-  # 12m data (set the primary beam)
-  # this step is necessary for certain distributions of Miriad
-  # (i.e., in case it does not recognize ALMA, ACA, or TP)
-  for field_id in $fields_12m
+  for spw_id in $spw
   do
-     pb="gaus('$pbfwhm_12m')"
-     puthd in=$name_12m'_'$field_id'.uv.miriad'/telescop \
-           value='single' \
-           type=a
 
-     puthd in=$linename'_'$field_id'.uv.miriad'/pbtype \
-           value=$pb \
-           type=a
+    # 12m data (set the primary beam)
+    # this step is necessary for certain distributions of Miriad
+    # (i.e., in case it does not recognize ALMA, ACA, or TP)
+    for field_id in $fields_12m
+    do
+       pb="gaus('$pbfwhm_12m')"
+       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/telescop \
+             value='single' \
+             type=a
 
-     puthd in=$linename'_'$field_id'.uv.miriad'/restfreq \
-           value=$linerestfreq \
-           type=d
+       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/pbtype \
+             value=$pb \
+             type=a
+
+       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/restfreq \
+             value=$linerestfreq \
+             type=d
+    done
+
+    # 7m data (set the primary beam)
+    # this step is necessary for certain distributions of Miriad
+    # (i.e., in case it does not recognize ALMA, ACA, or TP)
+    for field_id in $fields_7m
+    do
+       pb="gaus('$pbfwhm_7m')"
+       puthd in=$name_7m'_spw'$spw_id'_'$field_id'.miriad'/telescop \
+             value='single' \
+             type=a
+
+       puthd in=$name_7m'_spw'$spw_id'_'$field_id'.miriad'/pbtype \
+             value=$pb \
+             type=a
+
+       puthd in=$name_7m'_spw'$spw_id'_'$field_id'.miriad'/restfreq \
+             value=$linerestfreq \
+             type=d
+    done
+
   done
-
-  # 7m data (set the primary beam)
-  # this step is necessary for certain distributions of Miriad
-  # (i.e., in case it does not recognize ALMA, ACA, or TP)
-  for field_id in $fields_7m
-  do
-     pb="gaus('$pbfwhm_7m')"
-     puthd in=$name_7m'_'$field_id'.uv.miriad'/telescop \
-           value='single' \
-           type=a
-
-     puthd in=$name_7m'_'$field_id'.uv.miriad'/pbtype \
-           value=$pb \
-           type=a
-
-     puthd in=$name_7m'_'$field_id'.uv.miriad'/restfreq \
-           value=$linerestfreq \
-           type=d
-  done
-
 fi
 
 #################################################################
 
 
-##### Step 2. Imaging ACA #######################################
-if [$if_imagingACA == 'yes' ]
+##### Step 2. Imaging ACA alone #################################
+if [ $if_imagingACA == 'yes' ]
 then
-  if (-e $linename.acamap.temp ) then
-     rm -rf $linename.acamap.temp
-  fi
 
-  if (-e $linename.acabeam.temp ) then
-     rm -rf $linename.acabeam.temp
-  fi
+  for spw_id in $spw
+  do
+    for field_id in $fields_7m
+    do  
+      if (-e $name_7m.acamap.temp ) then
+         rm -rf $name_7m.acamap.temp
+      fi
 
-  if (-e $linename.acamodel.temp ) then
-     rm -rf $linename.acamodel.temp
-  fi
+      if (-e $name_7m.acabeam.temp ) then
+         rm -rf $name_7m.acabeam.temp
+      fi
 
-  if (-e $linename.acaresidual.temp ) then
-     rm -rf $linename.acaresidual.temp
-  fi
+      if (-e $name_7m.acamodel.temp ) then
+         rm -rf $name_7m.acamodel.temp
+      fi
 
-  if (-e $linename.acaclean.temp ) then
-     rm -rf $linename.acaclean.temp
-  fi
+      if (-e $name_7m.acaresidual.temp ) then
+         rm -rf $name_7m.acaresidual.temp
+      fi
+
+      if (-e $name_7m.acaclean.temp ) then
+         rm -rf $name_7m.acaclean.temp
+      fi
 
 
-  # produce dirty image (i.e., fourier transform)
-  invert vis=$ACAvis \
-         map=$linename.acamap.temp   \
-         beam=$linename.acabeam.temp \
-         options=double    \
-         imsize=$acaimsize \
-         cell=$acacell
+      # produce dirty image (i.e., fourier transform)
+      invert vis=$name_7m'_spw'$spw_id'_'$field_id'.miriad' \
+             map=$name_7m.acamap.temp   \
+             beam=$name_7m.acabeam.temp \
+             options=double    \
+             imsize=$aca_imsize \
+             cell=$aca_cell
 
-  # perform cleaning (i.e., produce the clean model image)
-  clean map=$linename.acamap.temp \
-        beam=$linename.acabeam.temp \
-        out=$linename.acamodel.temp \
-        niters=$acaniters \
-        cutoff=$acacutoff \
-        region=$acaregion \
-        options=$acaoptions
+      # perform cleaning (i.e., produce the clean model image)
+      clean map=$name_7m.acamap.temp \
+            beam=$name_7m.acabeam.temp \
+            out=$name_7m.acamodel.temp \
+            niters=$aca_niters \
+            cutoff=$aca_cutoff \
+            region=$aca_region \
+            options=$aca_options
 
-  # produce the clean image (for inspection)
-  restor map=$linename.acamap.temp \
-         beam=$linename.acabeam.temp \
-         mode=clean \
-         model=$linename.acamodel.temp \
-         out=$linename.acaclean.temp
+      # produce the clean image (for inspection)
+      restor map=$name_7m.acamap.temp \
+             beam=$name_7m.acabeam.temp \
+             mode=clean \
+             model=$name_7m.acamodel.temp \
+             out=$name_7m.acaclean.temp
 
-  # produce the residual image (for insepction)
-  restor map=$linename.acamap.temp \
-         beam=$linename.acabeam.temp \
-         mode=residual \
-         model=$linename.acamodel.temp \
-         out=$linename.acaresidual.temp
+      # produce the residual image (for insepction)
+      restor map=$name_7m.acamap.temp \
+             beam=$name_7m.acabeam.temp \
+             mode=residual \
+             model=$name_7m.acamodel.temp \
+             out=$name_7m.acaresidual.temp
+   
+     done
+  done
 
- fi
+fi
 #################################################################
 
 
