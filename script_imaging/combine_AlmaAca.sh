@@ -94,20 +94,11 @@ tsys_single='60'
 
 ##### parameters for ACA cleaning ##################
 
-# size of the initial ACA image in units of pixels
-aca_imsize='128,128'
-
-# cell size for the initial ACA image in units of arcsecond.
-aca_cell='0.8'
-
-# number of iterations for the initial ACA imaging (per channel)
-aca_niters=1500
-
-# cutoff level fo the initial ACA imaging
-aca_cutoff=0.15
-      
-# options for the initial ACA imaging (in the clean task)
-aca_options='positive' 
+aca_imsize='128,128'  # size of the initial ACA image in units of pixels
+aca_cell='0.8'        # cell size for the initial ACA image in units of arcsecond.
+aca_niters=1500       # number of iterations for the initial ACA imaging (per channel)
+aca_cutoff=0.15       # cutoff level fo the initial ACA imaging      
+aca_options='positive'  # options for the initial ACA imaging (in the clean task)
       
 # The region in the ACA image to clean.
 # This is sometimes useful (e.g., when you actually neeed single-dish but doesn't have it)
@@ -116,20 +107,11 @@ aca_region='boxes(45,45,85,85)' # ***
 
 ##### paramaters for final imaging ###################
 
-# Briggs robust parameter for the final imaging.
-robust=2.0
-
-# size of the final image in units of pixels
-imsize='6000,6000' # ***
-
-# cell size for the final image in units of arcsecond.
-cell='0.01' # ***
-
-# number of iterations for the final imaging (per channel)
-niters=1000000 # ***
-
-# cutoff level fo the final imaging
-cutoff=0.005 # ***
+robust=2.0                # Briggs robust parameter for the final imaging.
+imsize='6000,6000' # ***  # size of the final image in units of pixels
+cell='0.01' # ***         # cell size for the final image in units of arcsecond.
+niters=1000000 # ***      # number of iterations for the final imaging (per channel)
+cutoff=0.005 # ***        # cutoff level fo the final imaging
 
 # The region in the final image to clean.
 # This is sometimes useful (e.g., when you actually neeed single-dish but doesn't have it)
@@ -250,23 +232,23 @@ then
   do
     for field_id in $fields_7m
     do  
-      if (-e $name_7m.acamap.temp ) then
+      if [ -e $name_7m.acamap.temp ]; then
          rm -rf $name_7m.acamap.temp
       fi
 
-      if (-e $name_7m.acabeam.temp ) then
+      if [ -e $name_7m.acabeam.temp ]; then
          rm -rf $name_7m.acabeam.temp
       fi
 
-      if (-e $name_7m.acamodel.temp ) then
+      if [ -e $name_7m.acamodel.temp ]; then
          rm -rf $name_7m.acamodel.temp
       fi
 
-      if (-e $name_7m.acaresidual.temp ) then
+      if [ -e $name_7m.acaresidual.temp ]; then
          rm -rf $name_7m.acaresidual.temp
       fi
 
-      if (-e $name_7m.acaclean.temp ) then
+      if [ -e $name_7m.acaclean.temp ]; then
          rm -rf $name_7m.acaclean.temp
       fi
 
