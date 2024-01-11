@@ -6,6 +6,8 @@
 # v0 (2023.Dec.05): revised from the script "combine_single.csh" 
 #                   obtained from
 #                   https://github.com/baobabyoo/almica
+# v1 (2023.Jan.11): complete the step 0,1
+#		    revise the step 2 in progress
 #
 #################################################################
 
@@ -36,10 +38,7 @@ if_fitstomiriad='nyes'
 #   data taken from different observatories).
 if_setheaders='nyes'
 
-#   deconvolve single-dish image. Miriad allows you to use
-#   MEM or clean to do this. However, MEM is somewhat tricky
-#   to control for unexperienced users. If you are not familiar
-#   with image deconvolution, it is better to use clean.
+#
 if_imagingACA='yes'
 
 #
@@ -56,7 +55,7 @@ if_fitsoutput='nyes'
 # name of your spectral line. I usually use this as part of my output filename.
 # In this case, it is the CO J=2-1 line.
 # You can set this to anything you like. It does not matter.
-linename="co_2to1"
+#linename="co_2to1"
 
 # The rest frequency of your line. The sets the velocity grid.
 linerestfreq=230.53800000 # in GHz unit
@@ -124,8 +123,8 @@ taper='0.1,0.1' # ***
 #################################################################
 # Notes.
 # 
-# The FWHM of the ALMA primary beam is 21" at 300 GHz for a 12 m 
-# antenna and a 35? for a 7 m antenna, and scales linearly with 
+# The FWHM of the ALMA primary beam is 19" at 300 GHz for a 12 m 
+# antenna and a 33" for a 7 m antenna, and scales linearly with 
 # wavelength
 #
 # ###############################################################
@@ -177,6 +176,7 @@ fi
 
 if [ $if_setheaders == 'yes' ]
 then
+
   for spw_id in $spw
   do
 
