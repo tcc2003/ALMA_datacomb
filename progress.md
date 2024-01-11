@@ -1,5 +1,8 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+### 2024.Jan.11
+After executing step 0,1 ,I am not sure how to appropriately set the value of certain parameters in ACA imaging (like "cutoff","niters","region").
+
 ### 2023.Dec.28
 1. In order to differentiate the script of imaging and the subsequent analysis,I rename the directory. In addition, I add the script for analyzing the final spectra.
 2. Complete the rough structure of ***combine_AlmaAca.sh*** script.
