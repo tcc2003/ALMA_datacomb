@@ -1,5 +1,18 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+### 2024.Jan,18
+After trying to do ACA imaging, I got the error message.
+```
+invert: CVS Revision 1.12, 2012/05/25 12:53:15 UTC
+
+### Informational [invert]:  Using uniform weighting with robust unset is not recommended
+Reading the visibility data ...
+Making cubes with 1532 planes
+Visibilities accepted: 0
+### Warning [invert]:  Visibilities rejected: 52852
+### Fatal Error [invert]:  No visibilities to map
+```
+
 ### 2024.Jan.11
 After executing step 0,1 ,I am not sure how to appropriately set the value of certain parameters in ACA imaging (like "cutoff","niters","region").
 
