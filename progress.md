@@ -1,7 +1,7 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
 ### 2024.Jan,18
-After trying to do ACA imaging, I got the error message.
+After trying to do the task "invert", I got the error message.
 ```
 invert: CVS Revision 1.12, 2012/05/25 12:53:15 UTC
 
