@@ -1,6 +1,14 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
-### 2024.Jan,18
+### 2024.Jan.24
+Approach (to resolve the error in "invert")
+1. In **exportfits_7m.py**, I replace the task "split" with "mstransform" in CASA version 6.5.5.
+2. Execute an individual calibrated data with field 1 and spw 0 step by step, and I finally do the task "invert" in the MIRIAD software package sucessfully.
+3. Run the script **exportfits_7m.py**, **concat_7m.py** and **combineAlmaAca.sh** seperately to identify where the error is occurring.
+4. I confirm that the error is related to task "split".
+
+
+### 2024.Jan.18
 After trying to do the task "invert", I got the error message.
 ```
 invert: CVS Revision 1.12, 2012/05/25 12:53:15 UTC
