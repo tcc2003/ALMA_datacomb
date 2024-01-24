@@ -6,8 +6,8 @@ if_uvaver='yes'
 
 vis_IDs=$(seq 0 1 15)
 filehead='ACA7m'
-spw=$(seq 0 1 3)
-field=$(seq 0 1 4)
+spw=$(seq 0 1 0)
+field=$(seq 1 1 1)
 line_parameter='velocity,1532,-1230,1.57,1.57'
 restfreq[0]=217.238530
 restfreq[1]=215.700000
@@ -47,8 +47,8 @@ then
   
         # remove output file if exist
         infile=$filehead'_vis'$vis_ID'_spw'$spw_ID'_'$field_ID
-        rm -rf $infile'_uvputhd.miriad'
-        rm -rf $infile'_uvredo.miriad'
+        fm -rf $infile'_uvputhd.miriad'
+m       rm -rf $infile'_uvredo.miriad'
   
         # include restfrequency in the header
         uvputhd vis=$infile'.miriad' hdvar='restfreq' type='d' \

@@ -9,7 +9,8 @@ import os
     v0: 2023.Nov.04
     v1: 2023.Nov.21
         Remove the cvel and concat task 
-
+    v2: 2024.Jan.24
+        Replace the 'split' with 'mstransform' task
 '''
 ##### Define variables #######################################
 
@@ -33,8 +34,8 @@ all_ms = [
           'uid___A002_Xb7a3f8_X9d67.ms.split.cal.split'
          ]
 # The fields and spectral windows to export
-all_fieldIDs = range(0,5)
-all_spwIDs   = range(0,4)
+all_fieldIDs = range(1,2)
+all_spwIDs   = range(0,1)
 
 # The head of the output FITS file name
 outname_head = 'ACA7m'
@@ -71,7 +72,7 @@ if (thesteps==[]):
   print ('Executing all steps: ', thesteps)
 
 
-##### output lisobs file #####################################
+##### output listobs file #####################################
 
 mystep = 0
 if(mystep in thesteps):
@@ -107,11 +108,11 @@ if(mystep in thesteps):
 
           splitms = outname_head + '_vis' + str(visID)  + '_spw' + str(spwID) + '_' + str(fieldID) + '.ms'
           os.system('rm -rf ' + splitms )
-          split(
-                vis = vis, datacolumn = 'data',
-                outputvis = splitms,
-                field = str(fieldID), spw = str(spwID),
-               )
+          mstransform(
+                        vis = vis, datacolumn = 'data',
+                        outputvis = splitms,
+                        field = str(fieldID), spw = str(spwID),
+                     )
 
 ##############################################################
 

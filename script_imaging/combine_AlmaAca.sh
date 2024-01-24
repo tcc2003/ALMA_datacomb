@@ -36,7 +36,7 @@ if_fitstomiriad='nyes'
 
 #   modify headers (important and hard when you're combining
 #   data taken from different observatories).
-if_setheaders='nyes'
+if_setheaders='yes'
 
 #
 if_imagingACA='yes'
