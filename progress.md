@@ -1,5 +1,18 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+### 2024.Jan.30
+The error message
+```
+linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
+
+WARNING: Setting RMS to 1.0 for all images.
+Processing image ACA7m.acamodel.regrid.temp
+### Fatal Error [linmos]:  Bad parameter for gaussian beam
+```
+
+### 2024.Jan.25
+Select the certain high-emission channels to output in the task 
+
 ### 2024.Jan.24
 Approach (to resolve the error in "invert")
 1. In **exportfits_7m.py**, I replace the task "split" with "mstransform" in CASA version 6.5.5.
