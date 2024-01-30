@@ -9,7 +9,7 @@ WARNING: Setting RMS to 1.0 for all images.
 Processing image ACA7m.acamodel.regrid.temp
 ### Fatal Error [linmos]:  Bad parameter for gaussian beam
 ```
-is due to the mistake of datatype in setting the header of pbtype.
+is due to the mistake of datatype in setting the header "pbtype".
 
 Approach
 
