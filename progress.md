@@ -9,9 +9,12 @@ WARNING: Setting RMS to 1.0 for all images.
 Processing image ACA7m.acamodel.regrid.temp
 ### Fatal Error [linmos]:  Bad parameter for gaussian beam
 ```
+is due to the mistake of datatype in setting the header of pbtype.
+Approach
+Modify ```pb="gaus('$pbfwhm_7m')"``` to ```pb="gaus($pbfwhm_7m)"```, so does the 12m array.
 
 ### 2024.Jan.25
-Select the certain high-emission channels to output in the task 
+Select the certain high-emission channels in the task by specify "line" in task "invert" to the convenience and speed of the following execution. The way to check the high-emission channel is use "imview" in casa655. By following its spectra, I chose the high_emission part by specify its velocity.
 
 ### 2024.Jan.24
 Approach (to resolve the error in "invert")
