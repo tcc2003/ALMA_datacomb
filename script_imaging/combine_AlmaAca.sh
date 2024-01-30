@@ -36,15 +36,15 @@ if_fitstomiriad='nyes'
 
 #   modify headers (important and hard when you're combining
 #   data taken from different observatories).
-if_setheaders='yes'
+if_setheaders='nyes'
 
 #
-if_imagingACA='yes'
+if_imagingACA='nyes'
 
 #
-if_im12aca='nyes'
+if_ip12aca='nyes'
 
-if_acavis='nyes'
+if_acavis='yes'
 
 if_jointlyimag='nyes'
 
@@ -58,14 +58,19 @@ if_fitsoutput='nyes'
 #linename="co_2to1"
 
 # The rest frequency of your line. The sets the velocity grid.
-linerestfreq=230.53800000 # in GHz unit
+declare -A restfreq
+restfreq[0]='217.238530' # in GHz unit
+restfreq[1]='215.700000'
+restfreq[2]='230.900000'
+restfreq[3]='232.694912'
+
 
 # The directory where your visibility data are located.
 visdir_12m="../fits/12m/" 
 visdir_7m='../fits/7m/'
 
 # The ids (integers) of the data files (see the notes at the beginning).
-fields_12m=$(seq 0 1 0)
+fields_12m=$(seq 1 1 1)
 fields_7m=$(seq 1 1 1)
 
 # The primary beam FWHM of the files with id=1, id=2, and id=3, i.e.,
@@ -80,12 +85,16 @@ name_7m='ACA7m'
 # spectral window
 spw=$(seq 0 1 0)
 
+# Filename of ACA visibilities
+ACAvis='ACA7m_spw0_1.miriad'
+
 # Filename of all of the ALMA 12-m visibility
 all12mvis='co_2to1_1.uv.miriad,co_2to1_2.uv.miriad' # ***
 
 # Filename of one of the ALMA 12-m visibility. It can be any one of those.
 # This is for the script to extract header information.
-Mainvis='co_2to1_1.uv.miriad' # ***
+#In implementing 12m array (step 3)
+Mainvis='ALMA12m_spw0_1.uv.miriad' # ***
 
 # A relative Tsys for adjusting weighting.
 tsys_single='60'
@@ -95,10 +104,17 @@ tsys_single='60'
 
 aca_imsize='128,128'  # size of the initial ACA image in units of pixels
 aca_cell='0.8'        # cell size for the initial ACA image in units of arcsecond.
-aca_niters=1500       # number of iterations for the initial ACA imaging (per channel)
-aca_cutoff=0.15       # cutoff level fo the initial ACA imaging      
+aca_niters='2500'        # number of iterations for the initial ACA imaging (per channel)
+aca_cutoff='0.2'       # cutoff level fo the initial ACA imaging      
 aca_options='positive'  # options for the initial ACA imaging (in the clean task)
-      
+ 
+ # parameters for select certain high-emission spectral line in "invert" task
+aca_vstart='35.0000'
+aca_vchan='58'
+aca_vwidth='1.57'
+aca_vstep='1.57'
+aca_linepara="velocity,$aca_vchan,$aca_vstart,$aca_vwidth,$aca_vstep"
+
 # The region in the ACA image to clean.
 # This is sometimes useful (e.g., when you actually neeed single-dish but doesn't have it)
 aca_region='boxes(45,45,85,85)' # ***
@@ -171,21 +187,20 @@ fi
 #################################################################
 
 
-
 ##### Step 1. Set headers #######################################
 
 if [ $if_setheaders == 'yes' ]
 then
-
+  
   for spw_id in $spw
-  do
+    do
 
     # 12m data (set the primary beam)
     # this step is necessary for certain distributions of Miriad
     # (i.e., in case it does not recognize ALMA, ACA, or TP)
     for field_id in $fields_12m
     do
-       pb="gaus('$pbfwhm_12m')"
+       pb="gaus($pbfwhm_12m)"
        puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/telescop \
              value='single' \
              type=a
@@ -195,16 +210,17 @@ then
              type=a
 
        puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/restfreq \
-             value=$linerestfreq \
+             value=${restfreq[$spw_id]} \
              type=d
     done
+  
 
     # 7m data (set the primary beam)
     # this step is necessary for certain distributions of Miriad
     # (i.e., in case it does not recognize ALMA, ACA, or TP)
     for field_id in $fields_7m
     do
-       pb="gaus('$pbfwhm_7m')"
+       pb="gaus($pbfwhm_7m)"
        puthd in=$name_7m'_spw'$spw_id'_'$field_id'.miriad'/telescop \
              value='single' \
              type=a
@@ -214,8 +230,9 @@ then
              type=a
 
        puthd in=$name_7m'_spw'$spw_id'_'$field_id'.miriad'/restfreq \
-             value=$linerestfreq \
+             value=${restfreq[$spw_id]} \
              type=d
+
     done
 
   done
@@ -259,7 +276,8 @@ then
              beam=$name_7m.acabeam.temp \
              options=double    \
              imsize=$aca_imsize \
-             cell=$aca_cell
+             cell=$aca_cell    \
+	     line=$aca_linepara
 
       # perform cleaning (i.e., produce the clean model image)
       clean map=$name_7m.acamap.temp \
@@ -295,37 +313,37 @@ fi
 if [ $if_ip12aca == 'yes' ]
 then
 
-  if (-e $linename.acamodel.regrid.temp) then
-     rm -rf $linename.acamodel.regrid.temp
+  if [ -e $name_7m.acamodel.regrid.temp ]; then
+     rm -rf $name_7m.acamodel.regrid.temp
   fi
 
   # regriding the model image to the original imagesize
-  regrid in=$linename.acamodel.temp \
-         tin=$linename.acamap.temp \
-         out=$linename.acamodel.regrid.temp
+  regrid in=$name_7m.acamodel.temp \
+         tin=$name_7m.acamap.temp \
+         out=$name_7m.acamodel.regrid.temp
 
-  if (-e $linename.acamodel.regrid.pbcor.temp) then
-     rm -rf $linename.acamodel.regrid.pbcor.temp
+  if [ -e $name_7m.acamodel.regrid.pbcor.temp ]; then
+     rm -rf $name_7m.acamodel.regrid.pbcor.temp
   fi
 
   # correct the aca primary beam to the model
-  linmos in=$linename.acamodel.regrid.temp \
-         out=$linename.acamodel.regrid.pbcor.temp
+  linmos in=$name_7m.acamodel.regrid.temp \
+         out=$name_7m.acamodel.regrid.pbcor.temp
 
-  if (-e $linename.acamodel.regrid.pbcor.demos.temp1) then
-     rm -rf $linename.acamodel.regrid.pbcor.demos.temp1
+  if [ -e $name_7m.acamodel.regrid.pbcor.demos.temp1 ]; then
+     rm -rf $name_7m.acamodel.regrid.pbcor.demos.temp1
   fi
 
   # implement (i.e., multiply) the 12m array primary beam
-  demos map=$linename.acamodel.regrid.pbcor.temp \
+  demos map=$name_7m.acamodel.regrid.pbcor.temp \
         vis=$Mainvis \
-        out=$linename.acamodel.regrid.pbcor.demos.temp
+        out=$name_7m.acamodel.regrid.pbcor.demos.temp
 
-  if (-e $linename.acamodel.regrid.pbcor.demos.temp) then
-     rm -rf $linename.acamodel.regrid.pbcor.demos.temp
+  if [ -e $name_7m.acamodel.regrid.pbcor.demos.temp ]; then
+     rm -rf $name_7m.acamodel.regrid.pbcor.demos.temp
   fi
 
-  mv $linename.acamodel.regrid.pbcor.demos.temp1 $linename.acamodel.regrid.pbcor.demos.temp
+  mv $name_7m.acamodel.regrid.pbcor.demos.temp1 $name_7m.acamodel.regrid.pbcor.demos.temp
 
 fi
 
@@ -335,13 +353,13 @@ fi
 if [ $if_acavis == 'yes' ]
 then
 
-  if (-e $ACAvis'.uvmodel') then
+  if [ -e $ACAvis'.uvmodel' ]; then
      rm -rf $ACAvis'.uvmodel'
   fi
 
   # replacing the visibility amplitude and phase based on the input image model
   uvmodel vis=$ACAvis \
-          model=$linename.acamodel.regrid.pbcor.demos.temp \
+          model=$name_7m.acamodel.regrid.pbcor.demos.temp \
           options='replace' \
           out=$ACAvis'.uvmodel'
 
@@ -354,7 +372,7 @@ then
           length=1 \
           out=$ACAvis'.uvmodel.temp'
 
-  if (-e $ACAvis'.uvmodel') then
+  if [ -e $ACAvis'.uvmodel' ]; then
      rm -rf $ACAvis'.uvmodel'
   fi
 
@@ -368,18 +386,18 @@ if [ $if_jointlyimag == 'yes' ]
 then
 
   ## INVERTING :
-  if (-e $linename.map.temp ) then
-     rm -rf $linename.map.temp
+  if [ -e $name_7m.map.temp ]; then
+     rm -rf $name_7m.map.temp
   fi
 
-  if (-e $linename.beam.temp ) then
-     rm -rf $linename.beam.temp
+  if [ -e $name_7m.beam.temp ]; then
+     rm -rf $name_7m.beam.temp
   fi
 
   # produce the dirty image
   invert vis=$all12mvis,$ACAvis'.uvmodel'      \
-         map=$linename.map.temp                \
-         beam=$linename.beam.temp              \
+         map=$name_7m.map.temp                \
+         beam=$name_7m.beam.temp              \
          options='systemp,double'              \
          robust=$robust                        \
 #         line=channel,1,90,1,1 \
@@ -389,7 +407,7 @@ then
 
 
   ## CLEANING: 
-  if (-e $linename.model.temp ) then
+  if [ -e $linename.model.temp ]; then
      rm -rf $linename.model.temp
   fi
 
@@ -405,11 +423,11 @@ then
 
   # RESTORING:
 
-  if (-e $linename.clean.temp ) then
+  if [ -e $linename.clean.temp ]; then
      rm -rf $linename.clean.temp
   fi
 
-  if (-e $linename.residual.temp ) then
+  if [ -e $linename.residual.temp ]; then
      rm -rf $linename.residual.temp
   fi
 
@@ -431,7 +449,7 @@ then
 
   # FINAL PBCOR:
 
-  if (-e $linename.clean.pbcor.temp ) then
+  if [ -e $linename.clean.pbcor.temp ]; then
      rm -rf $linename.clean.pbcor.temp
   fi
 
