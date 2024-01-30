@@ -10,7 +10,9 @@ Processing image ACA7m.acamodel.regrid.temp
 ### Fatal Error [linmos]:  Bad parameter for gaussian beam
 ```
 is due to the mistake of datatype in setting the header of pbtype.
+
 Approach
+
 Modify ```pb="gaus('$pbfwhm_7m')"``` to ```pb="gaus($pbfwhm_7m)"```, so does the 12m array.
 
 ### 2024.Jan.25
