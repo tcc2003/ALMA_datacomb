@@ -1,7 +1,7 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
 ### 2024.Jan.30
-The error message
+1. The error message
 ```
 linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
 
@@ -11,9 +11,8 @@ Processing image ACA7m.acamodel.regrid.temp
 ```
 is due to the mistake of datatype in setting the header "pbtype".
 
-Approach
-
-Modify ```pb="gaus('$pbfwhm_7m')"``` to ```pb="gaus($pbfwhm_7m)"```, so does the 12m array.
+2. Approach
+ Modify ```pb="gaus('$pbfwhm_7m')"``` to ```pb="gaus($pbfwhm_7m)"```, so does the 12m array.
 
 ### 2024.Jan.25
 Select the certain high-emission channels in the task by specify "line" in task "invert" to the convenience and speed of the following execution. The way to check the high-emission channel is use "imview" in casa655. By following its spectra, I chose the high_emission part by specify its velocity.
