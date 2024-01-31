@@ -1,7 +1,7 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
 ### 2024.Jan.31  
-1. To take a glimpse of the final roughly image, I executed the step 4,5,6 without changing the parameter from the reference. In addition, I changed the name of the output image to make it easier to distinguish the image from the .miriad and .fits files.   
+1. To catch a glimpse of the final roughly image, I executed the step 4,5,6 without changing the parameter from the reference. In addition, I changed the name of the output image to make it easier to distinguish the image from the .miriad and .fits files.   
 ### 2024.Jan.30
 1. The error message  
 ```
