@@ -10,7 +10,7 @@ import os
     v1: 2023.Nov.21
         Remove the cvel and concat task 
     v2: 2024.Jan.24
-        Replace the 'split' with 'mstransform' task
+        
 '''
 ##### Define variables #######################################
 
@@ -41,9 +41,9 @@ all_spwIDs   = range(0,1)
 outname_head = 'ACA7m'
 
 # velocity gridding in the output
-vel_start  = '-1230km/s'
-vel_width  = '1.57km/s'
-vel_nchan  = 1532
+#vel_start  = '-1230km/s'
+#vel_width  = '1.57km/s'
+#vel_nchan  = 1532
 
 # rest frequencies
 restfreq = {}
@@ -108,11 +108,16 @@ if(mystep in thesteps):
 
           splitms = outname_head + '_vis' + str(visID)  + '_spw' + str(spwID) + '_' + str(fieldID) + '.ms'
           os.system('rm -rf ' + splitms )
+          # split -> mstransform
           mstransform(
                         vis = vis, datacolumn = 'data',
                         outputvis = splitms,
                         field = str(fieldID), spw = str(spwID),
-                     )
+                        restfreq = restfreq[spwID],
+                        regridms = True,
+                        mode = 'velocity', 
+                         nchan = 2, start='83.67km/s', width='1.57km/s'
+                        )
 
 ##############################################################
 
@@ -141,5 +146,4 @@ if(mystep in thesteps):
                               multisource = False, combinespw = False
                              )
 
-##############################################################
-
+###############################################################

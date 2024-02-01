@@ -4,12 +4,12 @@ if_fitsin='yes'
 if_uvredo='yes'
 if_uvaver='yes'
 
-vis_IDs=$(seq 0 1 15)
-filehead='ACA7m'
+vis_IDs=$(seq 0 1 3) #***
+filehead='ALMA12m'
 spw=$(seq 0 1 0)
 field=$(seq 1 1 1)
 #line_parameter='velocity,1532,-1230,1.57,1.57'
-linepara_test='velocity,2,83.67,1.57,1.57'
+linepara_test='velocity,2,102.501,1.57,1.57'
 restfreq[0]=217.238530
 restfreq[1]=215.700000
 restfreq[2]=223.900000
@@ -58,8 +58,8 @@ then
   
         # syntax of the line parameter: nchan, start, width, step
         uvredo vis=$infile'_uvputhd.miriad' out=$infile'_uvredo.miriad' \
-       	       stokes='ii' options='velocity' velocity='lsr' \
-  	       line=$linepara_test
+       	   stokes='ii' options='velocity' velocity='lsr' \
+  	   line=$linepara_test
         rm -rf $infile'_uvputhd.miriad'
   
         # use the Miriad-uvspec task to check the regrided velocity, for example
@@ -79,7 +79,7 @@ then
   do
     for field_ID in $field
     do
-      vis=''
+	vis=''
       for vis_ID in $vis_IDs
       do
         infile=$filehead'_vis'$vis_ID'_spw'$spw_ID'_'$field_ID

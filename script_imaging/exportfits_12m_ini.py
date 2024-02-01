@@ -7,10 +7,7 @@ import os
 
   History.
     v0: 2023.Nov.04
-    v1: 2023.Nov.21
-        Remove the cvel and concat task 
-    v2: 2024.Jan.24
-        
+
 '''
 ##### Define variables #######################################
 
@@ -21,17 +18,18 @@ all_ms = [
           'uid___A002_Xaef195_Xe46.ms.split.cal.split',
           'uid___A002_Xaf4574_X316c.ms.split.cal.split'
          ]
+
 # The fields and spectral windows to export
-all_fieldIDs = range(1,2)
-all_spwIDs   = range(0,1)
+all_fieldIDs = range(0,4)
+all_spwIDs   = range(0,4)
 
 # The head of the output FITS file name
 outname_head = 'ALMA12m'
 
 # velocity gridding in the output
-#vel_start  = '-1230km/s'
-#vel_width  = '1.57km/s'
-#vel_nchan  = 1532
+vel_start  = '-1230km/s'
+vel_width  = '1.57km/s'
+vel_nchan  = 1532
 
 # rest frequencies
 restfreq = {}
@@ -47,7 +45,8 @@ thesteps = []
 step_title = {
               0: 'Output listobs files',
               1: 'Split individual target source fields in to MS files',
-              2: 'Export the observations of each visibility on each field to FITS',
+              2: 'Concat the MS for the observations on the same fileds',
+              3: 'Export the observations on each field to FITS'
              }
 
 try:
@@ -60,7 +59,7 @@ if (thesteps==[]):
   print ('Executing all steps: ', thesteps)
 
 
-##### output listobs file #####################################
+##### output lisobs file #####################################
 
 mystep = 0
 if(mystep in thesteps):
@@ -96,42 +95,78 @@ if(mystep in thesteps):
 
           splitms = outname_head + '_vis' + str(visID)  + '_spw' + str(spwID) + '_' + str(fieldID) + '.ms'
           os.system('rm -rf ' + splitms )
-          # split -> mstransform
-          mstransform(
-                        vis = vis, datacolumn = 'data',
-                        outputvis = splitms,
-                        field = str(fieldID), spw = str(spwID),
-                        restfreq = restfreq[spwID],
-                        regridms = True,
-                        mode = 'velocity', 
-                        nchan = 2, start='102.501km/s', width='1.57km/s'
-                        )
+          split(
+                vis = vis, datacolumn = 'data',
+                outputvis = splitms,
+                field = str(fieldID), spw = str(spwID),
+               )
+
+          cvelms = outname_head + '_vis' + str(visID)  + '_spw' + str(spwID) + '_' + str(fieldID) + '.cvel.ms'
+          cvel(
+               vis = splitms,
+               outputvis = cvelms,
+               mode = 'velocity',
+                 start = vel_start,
+                 nchan = vel_nchan,
+                 width = vel_width,
+                 restfreq = restfreq[spwID],
+               veltype = 'radio'
+              )
 
 ##############################################################
 
 
-##### Export the observations of each visibility on each field to FITS ##########
+
+##### Concat the MS for the observations on the same fields ##
 
 mystep = 2
 if(mystep in thesteps):
   casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
   print ('Step ', mystep, step_title[mystep])
 
-  for visID in range(len(all_ms)):
-    vis = all_ms[visID]
+  for fieldID in all_fieldIDs:
+    for spwID in all_spwIDs:
+      concatvis = outname_head + '_spw' + str(spwID) + '_' + str(fieldID) + '.cvel.ms'
 
-    for fieldID in all_fieldIDs:
-            for spwID in all_spwIDs:
+      # organize the list of files to be concatenated.
+      ms_list = []
+      for visID in range(len(all_ms)):
+        temp_msname = outname_head + '_vis' + str(visID)  + '_spw' + str(spwID) + '_' + str(fieldID) + '.cvel.ms'
+        ms_list.append(temp_msname)
 
-                filenamehead = outname_head + '_vis' + str(visID) + '_spw' + str(spwID) + '_' + str(fieldID)
-                concatvis = filenamehead + '.ms'
-                fitsfile  = filenamehead + '.fits'
+      # concatenate visibility files in a ms_list
+      os.system('rm -rf ' + concatvis)
+      concat(
+             vis = ms_list,
+             concatvis = concatvis
+            )
 
-                os.system('rm -rf ' + fitsfile )
-                exportuvfits(
-                              vis = concatvis, datacolumn = 'data',
-                              fitsfile = fitsfile,
-                              multisource = False, combinespw = False
-                             )
+##############################################################
 
-###############################################################
+
+
+##### Export the observations on each field to FITS ##########
+
+mystep = 3
+if(mystep in thesteps):
+  casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
+  print ('Step ', mystep, step_title[mystep])
+
+  for fieldID in all_fieldIDs:
+    for spwID in all_spwIDs:
+
+
+      filenamehead = outname_head + '_spw' + str(spwID) + '_' + str(fieldID) + '.cvel'
+      concatvis = filenamehead + '.ms'
+      fitsfile  = filenamehead + '.fits'
+
+      os.system('rm -rf ' + fitsfile )
+      exportuvfits(
+                   vis = concatvis, datacolumn = 'data',
+                   fitsfile = fitsfile,
+                   multisource = False, combinespw = False
+                   )
+
+##############################################################
+
+
