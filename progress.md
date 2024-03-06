@@ -1,5 +1,13 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+### 2024.Mar.06
+```
+invert: CVS Revision 1.12, 2012/05/25 12:53:15 UTC
+
+Reading the visibility data ...
+### Fatal Error [invert]:  Invalid preamble "time/baseline".
+```
+
 ### 2024.Feb.01  
 1. The way to export 12m data should be the same as the 7m data. I export the 12m by **exportfits_12m.py** and **concat_12m.py**, which is the same as the 7m. In addition, I select two high-emission channels to export for the convenience of following debug and execution.
    1. Problem
