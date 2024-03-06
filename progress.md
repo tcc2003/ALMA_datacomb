@@ -7,13 +7,10 @@ This is a file to record the progress of doing the project, which is about the a
    2. Approach
       - By using the command "tget" and "inp" to check the parameter of "mstransform", we found the velocity we select are not show on it.
       - Add the command ```regridms = True```
-2. Imaging (in the future)
+2. Imaging 
    1. Export the noise channel to get the intensity of noise
    2. The cutoff level should be one point five or two times than the noise
-   3. To determine "niter", I should try until it looks there is no structure in the residual image.
-      If overclean, the residual image would shows several straight lines.
-   4. Read the introduction of "clean" to know its procedure and principles.
-    
+  
 ### 2024.Jan.31  
 1. To catch a glimpse of the final roughly image, I executed the step 4,5,6 without changing the parameter from the reference. In addition, I changed the name of the output image to make it easier to distinguish the image from the .miriad and .fits files.   
 ### 2024.Jan.30
