@@ -37,17 +37,17 @@ if_fitstomiriad='nyes'
 
 #   modify headers (important and hard when you're combining
 #   data taken from different observatories).
-if_setheaders='nyes'
+if_setheaders=i'nyes'
 
 #
 if_imagingACA='nyes'
 
 #
-if_ip12aca='nyes'
+if_ip12aca='yes'
 
 if_acavis='nyes'
 
-if_jointlyimag='yes'
+if_jointlyimag='nyes'
 
 if_fitsoutput='nyes'
 
@@ -109,8 +109,8 @@ tsys_single='60'
 
 aca_imsize='128,128'  # size of the initial ACA image in units of pixels
 aca_cell='0.8'        # cell size for the initial ACA image in units of arcsecond.
-aca_niters='2500'        # number of iterations for the initial ACA imaging (per channel)
-aca_cutoff='0.2'       # cutoff level fo the initial ACA imaging      
+aca_niters='2000'        # number of iterations for the initial ACA imaging (per channel)
+aca_cutoff='0.06'       # cutoff level fo the initial ACA imaging      
 aca_options='positive'  # options for the initial ACA imaging (in the clean task)
  
  # parameters for select certain high-emission spectral line in "invert" task
@@ -122,7 +122,7 @@ aca_linepara="velocity,$aca_vchan,$aca_vstart,$aca_vwidth,$aca_vstep"
 
 # The region in the ACA image to clean.
 # This is sometimes useful (e.g., when you actually neeed single-dish but doesn't have it)
-aca_region='boxes(45,45,85,85)' # ***
+aca_region='boxes(39,49,91,101)' # ***
 
 
 ##### paramaters for final imaging ###################
@@ -208,15 +208,15 @@ then
     for field_id in $fields_12m
     do
        pb="gaus($pbfwhm_12m)"
-       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/telescop \
+       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.miriad'/telescop \
              value='single' \
              type=a
 
-       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/pbtype \
+       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.miriad'/pbtype \
              value=$pb \
              type=a
 
-       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'/restfreq \
+       puthd in=$name_12m'_spw'$spw_id'_'$field_id'.miriad'/restfreq \
              value=${restfreq[$spw_id]} \
              type=d
     done
@@ -284,17 +284,16 @@ then
              beam=${linename[$spw_id]}.acabeam.temp \
              options=double    \
              imsize=$aca_imsize \
-             cell=$aca_cell    \
-	     line=$aca_linepara
+             cell=$aca_cell    
 
       # perform cleaning (i.e., produce the clean model image)
       clean map=${linename[$spw_id]}.acamap.temp \
             beam=${linename[$spw_id]}.acabeam.temp \
             out=${linename[$spw_id]}.acamodel.temp \
-            niters=$aca_niters \
-            cutoff=$aca_cutoff \
-            region=$aca_region \
-            options=$aca_options
+            niters='2000' \
+            cutoff='0.06' \
+            region='boxes(39,49,91,101)' \
+            options='positive'
 
       # produce the clean image (for inspection)
       restor map=${linename[$spw_id]}.acamap.temp \
