@@ -1,12 +1,11 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
-### 2024.Mar.06
-```
-invert: CVS Revision 1.12, 2012/05/25 12:53:15 UTC
+### 2024.Mar.14
+1. I have incorporated field information into the image names during step 2-4 to facilitate subsequent checks and modifications.
+2. Testing has been successfully finalized in step 2-4, and adjustments to parameters have been made accordingly in the final image. 
 
-Reading the visibility data ...
-### Fatal Error [invert]:  Invalid preamble "time/baseline".
-```
+### 2024.Mar.06
+By getting the noise level from the spectra, I set the **cutoff** 0.04 and get the best residual image.
 
 ### 2024.Feb.01  
 1. The way to export 12m data should be the same as the 7m data. I export the 12m by **exportfits_12m.py** and **concat_12m.py**, which is the same as the 7m. In addition, I select two high-emission channels to export for the convenience of following debug and execution.
