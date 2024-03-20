@@ -40,14 +40,14 @@ if_fitstomiriad='nyes'
 if_setheaders='nyes'
 
 #
-if_imagingACA='nyes'
+if_imagingACA='yesn'
 
 #
 if_ip12aca='nyes'
 
-if_acavis='yes'
+if_acavis='nyes'
 
-if_jointlyimag='nyes'
+if_jointlyimag='yes'
 
 if_fitsoutput='nyes'
 
@@ -91,7 +91,7 @@ name_7m='ACA7m'
 spw=$(seq 0 1 0)
 
 # Filename of ACA visibilities
-ACAvis='ACA7m_spw0_1.miriad'
+ACAvis=(ACA7m_spw0_1.miriad ACA7m_spw0_2.miriad ACA7m_spw0_3.miriad ACA7m_spw0_4.miriad)
 
 # Filename of all of the ALMA 12-m visibility
 all12mvis='ALMA12m_spw0_1.miriad' # ***
@@ -291,8 +291,8 @@ then
             beam=${linename[$spw_id]}.acabeam.temp \
             out=${linename[$spw_id]}.acamodel.temp \
             niters='2000' \
-            cutoff='0.04' \
-            region='boxes(39,49,91,101)' \
+            cutoff='0.045' \
+            region='boxes(21,34,77,97)' \
             options='positive'
 
       # produce the clean image (for inspection)
@@ -327,9 +327,9 @@ then
         fi
 
         # regridding the model image to the original imagesize
-         regrid in=${linename[$spw_id]}.acamodel.temp \
+        regrid in=${linename[$spw_id]}.acamodel.temp \
                tin=${linename[$spw_id]}.acamap.temp \
-               out=${linename[$spw_id]}.acamodel.regrid.temp
+	       out=${linename[$spw_id]}.acamodel.regrid.temp
 
         if [ -e ${linename[$spw_id]}.acamodel.regrid.pbcor.temp ]; then
            rm -rf ${linename[$spw_id]}.acamodel.regrid.pbcor.temp
@@ -363,34 +363,48 @@ if [ $if_acavis == 'yes' ]
 then
   for spw_id in $spw
   do
-	
-      originaca = $name_7m'_spw'$spw_id'_'$field_id'.miriad'
-      
-      if [ -e $originaca'.uvmodel' ]; then
-         rm -rf $originaca'.uvmodel'
+
+    for acavis in "${ACAvis[@]}"
+    do
+	    
+      if [ -e $acavis'.uvmodel' ]; then
+         rm -rf $acavis'.uvmodel'
       fi
 
+      uvrandom npts='1500' \
+	       freq=${restfreq[$spw_id]} \
+      	       inttime=10 \
+	       uvmax=3.5 \
+	       nchan='30' \
+	       gauss=true \
+	       out='uv_random.miriad'
+
       # replacing the visibility amplitude and phase based on the input image model
-      uvmodel vis=$originaca \
+      uvmodel vis='uv_random.miriad' \
               model=${linename[$spw_id]}.acamodel.regrid.pbcor.demos.temp \
-              options='replace' \
-              out=$originaca'.uvmodel'
+              options='replace,imhead' \
+              out=$acavis'.uvmodel'
 
       # change the system temperature of the re-generated, primary beam tapered, ACA visibility.
       # this is to adjust the relative weight to the ALMA 12m visibility.
-      uvputhd vis=$originaca'.uvmodel' \
+      uvputhd vis=$acavis'.uvmodel' \
               hdvar=systemp \
               type=r \
               varval=$tsys_single \
               length=1 \
-              out=$originaca'.uvmodel.temp'
+              out=$acavis'.uvmodel.temp'
 
-      if [ -e $originaca'.uvmodel' ]; then
-         rm -rf $originaca'.uvmodel'
+      puthd in=$acavis'.uvmodel.temp'/pbtype \
+            value="gaus($pbfwhm_12m)" \
+            type=a   
+
+      if [ -e $acavis'.uvmodel' ]; then
+         rm -rf $acavis'.uvmodel'
       fi
 
-      mv $originaca'.uvmodel.temp' $originaca'.uvmodel'
+      mv $acavis'.uvmodel.temp' $acavis'.uvmodel'
 
+    done
   done
 fi
 #################################################################
@@ -400,7 +414,7 @@ if [ $if_jointlyimag == 'yes' ]
 then
   for spw_id in $spw
   do
-    for field_id in $fields_7m
+    for acavis in $ACAvis
     do
       ## INVERTING :
       if [ -e ${linename[$spw_id]}.map.temp ]; then
@@ -411,17 +425,15 @@ then
          rm -rf ${linename[$spw_id]}.beam.temp
       fi
 
-      originaca = $name_7m'_spw'$spw_id'_'$field_id'.miriad'
-
       # produce the dirty image
-      invert vis=$all12mvis,$originaca'.uvmodel'      \
+      invert vis=$all12mvis,$acavis'.uvmodel'      \
              map=${linename[$spw_id]}.map.temp                \
              beam=${linename[$spw_id]}.beam.temp              \
              options='systemp,double,mosaic'              \
              robust='2.0'                        \
-             imsize='6000,6000'       \
+             imsize='600,600'       \ 
              fwhm='0.1,0.1'          \
-             cell='0.01'
+             cell='0.2'
 
 
       ## CLEANING: 
