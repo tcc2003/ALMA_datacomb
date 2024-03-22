@@ -9,16 +9,14 @@
 # v1 (2023.Jan.11): complete the step 0,1
 #		    revise the step 2 in progress
 # 
-# v? (2023.Jan.31) :
 #################################################################
 
 #### Flow control ###############################################
 #
-# 1. Convert input data from FITS to Miriad format
 #
-# 2. Correct headers if necessary
+# 1. Correct headers if necessary
 #
-# 3. Imaging ACA alone
+# 2. Imaging ACA alone
 #
 # 4. Implement the 12m dish PB to ACA
 #
@@ -32,24 +30,21 @@
 
 # flow control #######################################
 #
-#   converting FITS files to Miriad format files
-if_fitstomiriad='nyes'
-
 #   modify headers (important and hard when you're combining
 #   data taken from different observatories).
-if_setheaders='nyes'
+if_setheaders='yes'
 
 #
-if_imagingACA='yesn'
+if_imagingACA='yes'
 
 #
-if_ip12aca='nyes'
+if_ip12aca='yes'
 
-if_acavis='nyes'
+if_acavis='yes'
 
 if_jointlyimag='yes'
 
-if_fitsoutput='nyes'
+if_fitsoutput='yes'
 
 ##### Parameters ################################################
 
@@ -69,26 +64,24 @@ restfreq[1]='215.700000'
 restfreq[2]='230.900000'
 restfreq[3]='232.694912'
 
-
 # The directory where your visibility data are located.
-visdir_12m="../fits/12m/" 
-visdir_7m='../fits/7m/'
+visdir_12m="../fits/12m/"  # ***************
+visdir_7m='../fits/7m/'    # ***************
 
-# The ids (integers) of the data files (see the notes at the beginning).
+# spectral window
+spw=$(seq 0 1 0)
+
+# Mosaic fields of files
 fields_12m=$(seq 1 1 1)
 fields_7m=$(seq 1 1 4)
 
-# The primary beam FWHM of the files with id=1, id=2, and id=3, i.e.,
-# for the visibility files XXX_1.fits, XXX_2.fits, and XXX_3.fits
+# The primary beam FWHM
 pbfwhm_12m='26.2'
 pbfwhm_7m='45.57'
 
 # Filename of the ACA visibility
 name_12m='ALMA12m'
 name_7m='ACA7m'
-
-# spectral window
-spw=$(seq 0 1 0)
 
 # Filename of ACA visibilities
 ACAvis=(ACA7m_spw0_1.miriad ACA7m_spw0_2.miriad ACA7m_spw0_3.miriad ACA7m_spw0_4.miriad)
@@ -140,56 +133,6 @@ cutoff=0.005 # ***        # cutoff level fo the final imaging
 # tapering FWHM in units of arcsecond.
 # You can comment out the tapering part in the final cleaning command if it is not needed.
 taper='0.1,0.1' # ***
-
-#################################################################
-# Notes.
-# 
-# The FWHM of the ALMA primary beam is 19" at 300 GHz for a 12 m 
-# antenna and a 33" for a 7 m antenna, and scales linearly with 
-# wavelength
-#
-# ###############################################################
-
-
-##### Step 0. Converting FITS visibilities to Miriad format #####
-
-if [ $if_fitstomiriad == 'yes' ]
-then
-
-  for spw_id in $spw
-  do 
-    # 12m data
-    echo '########## Importing 12m data ##########'
-    for field_id in $fields_12m
-      do
- 	# 12m data
- 	filename=$name_12m'_spw'$spw_id'_'$field_id'.cvel.fits' 
- 	outname=$name_12m'_spw'$spw_id'_'$field_id'.uv.miriad'
-	
-	rm -rf $outname
-
-	fits in=$visdir_12m$filename\
-        op=uvin \
-        out=$outname
-
-      done
-
-   # 7m data
-#   echo '########## Importing ACA data ##########'
-#   for field_id in $fields_7m
-#     do
-#	filename=$name_7m'_spw'$spw_id'_'$field_id'.cvel.fits' # ***
-#	outname=$name_7m'_spw'$spw_id'_'$field_id'.uv.miriad'
-#        rm -rf $outname
-
-#        fits in=$visdir_7m$filename \
-#        op=uvin \
-#        out=$outname
-
-#     done
-
-  done
-fi
 
 #################################################################
 
@@ -295,7 +238,7 @@ then
             region='boxes(21,34,77,97)' \
             options='positive'
 
-      # produce the clean image (for inspection)
+     # produce the clean image (for inspection)
       restor map=${linename[$spw_id]}.acamap.temp \
              beam=${linename[$spw_id]}.acabeam.temp \
              mode=clean \
@@ -371,6 +314,11 @@ then
          rm -rf $acavis'.uvmodel'
       fi
 
+      if [ -e 'uv_random.miriad' ]; then
+         rm -rf 'uv_random.miriad'
+      fi
+
+      # make random uv distribution for the following replacement
       uvrandom npts='1500' \
 	       freq=${restfreq[$spw_id]} \
       	       inttime=10 \
@@ -412,23 +360,26 @@ fi
 ##### Step 5. Jointly image ACA visibility model with 12m #######
 if [ $if_jointlyimag == 'yes' ]
 then
+
   for spw_id in $spw
   do
+
     for acavis in $ACAvis
     do
+
       ## INVERTING :
-      if [ -e ${linename[$spw_id]}.map.temp ]; then
-         rm -rf ${linename[$spw_id]}.map.temp
+      if [ -e ${linename[$spw_id]}.map ]; then
+         rm -rf ${linename[$spw_id]}.map
       fi
 
-      if [ -e ${linename[$spw_id]}.beam.temp ]; then
-         rm -rf ${linename[$spw_id]}.beam.temp
+      if [ -e ${linename[$spw_id]}.beam ]; then
+         rm -rf ${linename[$spw_id]}.beam
       fi
 
       # produce the dirty image
       invert vis=$all12mvis,$acavis'.uvmodel'      \
-             map=${linename[$spw_id]}.map.temp                \
-             beam=${linename[$spw_id]}.beam.temp              \
+             map=${linename[$spw_id]}.map \
+             beam=${linename[$spw_id]}.beam              \
              options='systemp,double,mosaic'              \
              robust='2.0'                        \
              imsize='600,600'       \ 
@@ -437,54 +388,53 @@ then
 
 
       ## CLEANING: 
-      if [ -e ${linename[$spw_id]}.model.temp ]; then
-         rm -rf ${linename[$spw_id]}.model.temp
+      if [ -e ${linename[$spw_id]}.model ]; then
+         rm -rf ${linename[$spw_id]}.model
       fi
 
       # produce the clean model
-      clean map=${linename[$spw_id]}.map.temp \
-            beam=${linename[$spw_id]}.beam.temp \
-            out=${linename[$spw_id]}.model.temp \
-            niters='100' \
-#	    region='boxes()' \
-            cutoff='0.005'
-
+      clean map=${linename[$spw_id]}.map \
+            beam=${linename[$spw_id]}.beam \
+            out=${linename[$spw_id]}.model \
+            niters='1000' \
+	    region='boxes(227,241,367,349)'  \
+            cutoff='0.03'
 
 
       # RESTORING:
   
-      if [ -e ${linename[$spw_id]}.clean.temp ]; then
-         rm -rf ${linename[$spw_id]}.clean.temp
+      if [ -e ${linename[$spw_id]}.clean ]; then
+         rm -rf ${linename[$spw_id]}.clean
       fi
 
-      if [ -e ${linename[$spw_id]}.residual.temp ]; then
-         rm -rf ${linename[$spw_id]}.residual.temp
+      if [ -e ${linename[$spw_id]}.residual ]; then
+         rm -rf ${linename[$spw_id]}.residual
       fi
 
       # produce the final clean image
-      restor map=${linename[$spw_id]}.map.temp \
-             beam=${linename[$spw_id]}.beam.temp \
+      restor map=${linename[$spw_id]}.map \
+             beam=${linename[$spw_id]}.beam \
              mode=clean \
-             model=${linename[$spw_id]}.model.temp \
-             out=${linename[$spw_id]}.clean.temp
+             model=${linename[$spw_id]}.model \
+             out=${linename[$spw_id]}.clean
 
       # produce the final residual image
-      restor map=${linename[$spw_id]}.map.temp \
-             beam=${linename[$spw_id]}.beam.temp \
+      restor map=${linename[$spw_id]}.map \
+             beam=${linename[$spw_id]}.beam \
              mode=residual \
-             model=${linename[$spw_id]}.model.temp \
-             out=${linename[$spw_id]}.residual.temp
+             model=${linename[$spw_id]}.model \
+             out=${linename[$spw_id]}.residual
 
 
 
       # FINAL PBCOR:
   
-      if [ -e ${linename[$spw_id]}.clean.pbcor.temp ]; then
-         rm -rf ${linename[$spw_id]}.clean.pbcor.temp
+      if [ -e ${linename[$spw_id]}.clean.pbcor ]; then
+         rm -rf ${linename[$spw_id]}.clean.pbcor
       fi
 
       # the Miriad task to perform primary beam correction
-      linmos in=${linename[$spw_id]}.clean.temp out=${linename[$spw_id]}.clean.pbcor.temp
+      linmos in=${linename[$spw_id]}.clean out=${linename[$spw_id]}.clean.pbcor
  
     done
   done
@@ -499,27 +449,27 @@ then
   for spw_id in $spw
   do 
 
-    fits in=${linename[$spw_id]}.clean.pbcor.temp \
+    fits in=${linename[$spw_id]}.clean.pbcor \
          op=xyout \
          out=${linename[$spw_id]}.clean.pbcor.fits
 
-    fits in=${linename[$spw_id]}.clean.temp \
+    fits in=${linename[$spw_id]}.clean \
          op=xyout \
          out=${linename[$spw_id]}.clean.fits
 
-    fits in=${linename[$spw_id]}.residual.temp \
+    fits in=${linename[$spw_id]}.residual \
          op=xyout \
          out=${linename[$spw_id]}.residual.fits
 
-    fits in=${linename[$spw_id]}.map.temp \
+    fits in=${linename[$spw_id]}.map \
          op=xyout \
          out=${linename[$spw_id]}.dirty.fits
 
-    fits in=${linename[$spw_id]}.beam.temp \
+    fits in=${linename[$spw_id]}.beam \
          op=xyout \
          out=${linename[$spw_id]}.beam.fits
 
-    if [  -e fits_images ]; then
+    if [ -e fits_images ]; then
        mv ${linename[$spw_id]}.clean.pbcor.fits ./fits_images/
        mv ${linename[$spw_id]}.clean.fits ./fits_images/
        mv ${linename[$spw_id]}.residual.fits ./fits_images/
@@ -541,7 +491,7 @@ then
        mkdir ${linename[$spw_id]}
     fi
 
-    mv ./${linename[$spw_id]}.*.temp ./${linename[$spw_id]}
+    mv ./${linename[$spw_id]}.* ./${linename[$spw_id]}
 
   done
 fi
