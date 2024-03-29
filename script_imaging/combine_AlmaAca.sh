@@ -235,7 +235,7 @@ then
             out=${linename[$spw_id]}.acamodel.temp \
             niters='2000' \
             cutoff='0.045' \
-            region='boxes(21,34,77,97)' \
+            region='boxes(6,26,90,106)' \
             options='positive'
 
      # produce the clean image (for inspection)
@@ -338,7 +338,7 @@ then
       uvputhd vis=$acavis'.uvmodel' \
               hdvar=systemp \
               type=r \
-              varval=$tsys_single \
+              varval='999' \
               length=1 \
               out=$acavis'.uvmodel.temp'
 
@@ -377,14 +377,14 @@ then
       fi
 
       # produce the dirty image
-      invert vis=$all12mvis,$acavis'.uvmodel'      \
+      invert vis=$all12mvis,$acavis'.uvmodel' \
              map=${linename[$spw_id]}.map \
-             beam=${linename[$spw_id]}.beam              \
-             options='systemp,double,mosaic'              \
-             robust='2.0'                        \
-             imsize='600,600'       \ 
-             fwhm='0.1,0.1'          \
-             cell='0.2'
+             beam=${linename[$spw_id]}.beam \
+             options='systemp,double,mosaic' \
+             robust='2.0' \
+             imsize='600,600' \
+  	     cell='0.2' 
+#             fwhm='0.1,0.1'          \
 
 
       ## CLEANING: 
