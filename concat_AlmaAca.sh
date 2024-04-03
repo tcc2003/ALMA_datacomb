@@ -81,7 +81,7 @@ then
       allvis_12m=''
       for vis_ID in $vis_12m
       do
-        infile=$head_7m'_vis'$vis_ID'_spw'$spw_ID'_'$field_ID
+        infile=$head_12m'_vis'$vis_ID'_spw'$spw_ID'_'$field_ID
         allvis_12m+=$infile'.miriad,'
       done
     done
@@ -91,6 +91,9 @@ then
 
   allvis_7m=${allvis_7m::-1}
   allvis_12m=${allvis_12m::-1}
+
+
+  echo $allvis_12m
 
 
   # concatenate files
@@ -123,5 +126,7 @@ then
     done
 
   done
+
+
 
 fi
