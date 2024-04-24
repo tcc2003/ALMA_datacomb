@@ -2,14 +2,14 @@
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
 ### 2024.Apr.24
 1. As I try to use the approach, there is a problem   
-```
-linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
-
-WARNING: Setting RMS to 1.0 for all images.
-Processing image DCN_3to2_1.acamodel.regrid.temp
-Processing image DCN_3to2_2.acamodel.regrid.temp
-### Fatal Error [linmos]:  Blanked pixels cannot be used when interpolating
-```
+  ```
+  linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
+  
+  WARNING: Setting RMS to 1.0 for all images.
+  Processing image DCN_3to2_1.acamodel.regrid.temp
+  Processing image DCN_3to2_2.acamodel.regrid.temp
+  ### Fatal Error [linmos]:  Blanked pixels cannot be used when interpolating
+  ```
 2. Reason
 
 3. Approach
@@ -17,13 +17,13 @@ Processing image DCN_3to2_2.acamodel.regrid.temp
 
 ### 2024.Apr.22
 1. Problem   
-```
-linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
-
-WARNING: Setting RMS to 1.0 for all images.
-Processing image DCN_3to2.acamodel.regrid.temp
-### Fatal Error [linmos]:  Bad size for mosaic table
-```
+  ```
+  linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
+  
+  WARNING: Setting RMS to 1.0 for all images.
+  Processing image DCN_3to2.acamodel.regrid.temp
+  ### Fatal Error [linmos]:  Bad size for mosaic table
+  ```
 2. Reason   
    ***linmos*** can only deal with one pointing, so it cannot correspond with the mosaic image( multiple pointings). In spite of this, many input cubes can be given.
 3. Approach
