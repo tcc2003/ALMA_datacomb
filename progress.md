@@ -1,5 +1,38 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+### 2024.Apr.24
+1. As I try to use the approach, there is a problem   
+```
+linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
+
+WARNING: Setting RMS to 1.0 for all images.
+Processing image DCN_3to2_1.acamodel.regrid.temp
+Processing image DCN_3to2_2.acamodel.regrid.temp
+### Fatal Error [linmos]:  Blanked pixels cannot be used when interpolating
+```
+2. Reason
+
+3. Approach
+
+
+### 2024.Apr.22
+1. Problem   
+```
+linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
+
+WARNING: Setting RMS to 1.0 for all images.
+Processing image DCN_3to2.acamodel.regrid.temp
+### Fatal Error [linmos]:  Bad size for mosaic table
+```
+2. Reason   
+   ***linmos*** can only deal with one pointing, so it cannot correspond with the mosaic image( multiple pointings). In spite of this, many input cubes can be given.
+3. Approach
+   - 1. Imaging and regrid each field seperately
+   - 2. Input these four fields to ***linmos***, and I can get the pb-corrected and mosaicked image.
+
+### 2024.Mar.14 - Apr.22   
+I forget to record it.....
+
 ### 2024.Mar.14
 1. I have incorporated field information into the image names during step 2-4 to facilitate subsequent checks and modifications.
 2. Testing has been successfully finalized in step 2-4, and adjustments to parameters have been made accordingly in the final image. 
