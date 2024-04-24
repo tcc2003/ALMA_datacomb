@@ -16,8 +16,8 @@ This is a file to record the progress of data combination.
 4. Approach
    - regrid these four model image to the same grid system in task ***regrid***
 5. Discussion
-   - 1. Now I use the previous mosaicked image (in the previous version of the script) as the template image, and I do it successfully. However, there exists a problem. If I choose the approach that imaging ACA data seperately in step 2, I need to create a large-scaled image to ensure they can be be regridded to the same system in step 3.
-   - 2. As Apr.22 mentioned, ***linmos** can only cope with one pointing. I cannot do the primary beam correction on the final image.
+   - In ***regrid***, I use the previous mosaicked image (in the previous version of the script) as the template image, and I do it successfully. However, there exists a problem. If I choose the approach that imaging ACA data seperately in step 2, I need to create a large-scaled image to ensure they can be be regridded to the same system in step 3.
+   - As Apr.22 mentioned, ***linmos*** can only cope with one pointing. I cannot do the primary beam correction on the final image.
 
 ### 2024.Apr.22
 1. Problem   
