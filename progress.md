@@ -1,7 +1,8 @@
 # GCDprogress
 This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+
 ### 2024.Apr.24
-1. As I try to use the approach, there is a problem   
+1. Problem   
   ```
   linmos: CVS Revision 1.5, 2013/07/20 04:39:18 UTC
   
@@ -11,9 +12,12 @@ This is a file to record the progress of doing the project, which is about the a
   ### Fatal Error [linmos]:  Blanked pixels cannot be used when interpolating
   ```
 2. Reason
-
-3. Approach
-
+   - Inputs should generally be on the same grid system.
+4. Approach
+   - regrid these four cleaned image to the same grid system in task ***regrid***
+5. Discussion
+   - 1. Now I use the previous mosaicked image (in the previous version of the script) as the template image, and I do it successfully. However, there exists a problem. If I choose the approach that imaging ACA data seperately in step 2, I need to create a large-scaled image to ensure they can be be regridded to the same system in step 3.
+   - 2. As Apr.22 mentioned, ***linmos** can only cope with one pointing. I cannot do the primary beam correction on the final image.
 
 ### 2024.Apr.22
 1. Problem   
