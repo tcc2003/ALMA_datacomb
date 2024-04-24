@@ -1,5 +1,5 @@
 # GCDprogress
-This is a file to record the progress of doing the project, which is about the abundance of Deuterium in the Galactic Center.
+This is a file to record the progress of data combination.
 
 ### 2024.Apr.24
 1. Problem   
