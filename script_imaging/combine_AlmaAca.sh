@@ -40,11 +40,11 @@ if_imagingACA='nyes'
 #
 if_ip12aca='nyes'
 
-if_acavis='nyes'
+if_acavis='yes'
 
 if_jointlyimag='yes'
 
-if_fitsoutput='nyes'
+if_fitsoutput='yes'
 
 ##### Parameters ################################################
 
@@ -84,7 +84,7 @@ name_12m='ALMA12m'
 name_7m='ACA7m'
 
 # Filename of ACA visibilities
-ACAvis=(ACA7m_spw0_1.miriad ACA7m_spw0_2.miriad ACA7m_spw0_3.miriad ACA7m_spw0_4.miriad)
+all7mvis='ACA7m_spw0_1.miriad','ACA7m_spw0_2.miriad','ACA7m_spw0_3.miriad','ACA7m_spw0_4.miriad'
 
 # Filename of all of the ALMA 12-m visibility
 all12mvis='ALMA12m_spw0_0.miriad','ALMA12m_spw0_1.miriad','ALMA12m_spw0_2.miriad','ALMA12m_spw0_3.miriad' # ***
@@ -197,65 +197,89 @@ then
 
   for spw_id in $spw
   do
-
-    for field_id in $fields_7m
-    do
-#	if [ $field_id -eq 3 ]; then
-#	  continue
-#	fi
-	
-        if [ -e ${linename[$spw_id]}'_'$field_id.acamap.temp ]; then
-           rm -rf ${linename[$spw_id]}'_'$field_id.acamap.temp
+    
+        if [ -e ${linename[$spw_id]}.acamap ]; then
+           rm -rf ${linename[$spw_id]}.acamap
         fi
 
-        if [ -e ${linename[$spw_id]}'_'$field_id.acabeam.temp ]; then
-           rm -rf ${linename[$spw_id]}'_'$field_id.acabeam.temp
+        if [ -e ${linename[$spw_id]}.acabeam ]; then
+           rm -rf ${linename[$spw_id]}.acabeam
         fi
 
-        if [ -e ${linename[$spw_id]}'_'$field_id.acamodel.temp ]; then
-           rm -rf ${linename[$spw_id]}'_'$field_id.acamodel.temp
+        if [ -e ${linename[$spw_id]}.acamodel ]; then
+           rm -rf ${linename[$spw_id]}.acamodel
         fi
 
-        if [ -e ${linename[$spw_id]}'_'$field_id.acaresidual.temp ]; then
-           rm -rf ${linename[$spw_id]}'_'$field_id.acaresidual.temp
+        if [ -e ${linename[$spw_id]}.acaresidual ]; then
+           rm -rf ${linename[$spw_id]}.acaresidual
         fi
 
-        if [ -e ${linename[$spw_id]}'_'$field_id.acaclean.temp ]; then
-           rm -rf ${linename[$spw_id]}'_'$field_id.acaclean.temp
+        if [ -e ${linename[$spw_id]}.acaclean ]; then
+           rm -rf ${linename[$spw_id]}.acaclean
         fi
 
 
         # produce dirty image (i.e., fourier transform)
-	invert vis=$name_7m'_spw'$spw_id'_'$field_id'.miriad' \
-	       map=${linename[$spw_id]}'_'$field_id.acamap.temp   \
-               beam=${linename[$spw_id]}'_'$field_id.acabeam.temp \
-               options=double    \
-               imsize='256,256' \
-               cell='0.8arcsec'   
+	invert vis=$all7mvis\
+	       map=${linename[$spw_id]}.acamap\
+	       beam=${linename[$spw_id]}.acabeam \
+               options=double,mosaic \
+	       imsize='256,256' \
+               cell='0.8'   
 
       # perform cleaning (i.e., produce the clean model image)
-        clean map=${linename[$spw_id]}'_'$field_id.acamap.temp \
-              beam=${linename[$spw_id]}'_'$field_id.acabeam.temp \
-              out=${linename[$spw_id]}'_'$field_id.acamodel.temp \
-              niters='50000' \
-              cutoff='0.1' \
-              options='positive'
-#	    region='boxes(40,94,105,153)'
+        clean map=${linename[$spw_id]}.acamap \
+              beam=${linename[$spw_id]}.acabeam \
+              out=${linename[$spw_id]}.acamodel \
+              niters='20000' \
+              cutoff='0.001' \
+              options='positive' \
+# 	      region='boxes(85,135,146,194)'
 
      # produce the clean image (for inspection)
-        restor map=${linename[$spw_id]}'_'$field_id.acamap.temp \
-               beam=${linename[$spw_id]}'_'$field_id.acabeam.temp \
+        restor map=${linename[$spw_id]}.acamap \
+               beam=${linename[$spw_id]}.acabeam \
                mode=clean \
-               model=${linename[$spw_id]}'_'$field_id.acamodel.temp \
-               out=${linename[$spw_id]}'_'$field_id.acaclean.temp
+               model=${linename[$spw_id]}.acamodel \
+               out=${linename[$spw_id]}.acaclean
 
       # produce the residual image (for insepction)
-        restor map=${linename[$spw_id]}'_'$field_id.acamap.temp \
-    	       beam=${linename[$spw_id]}'_'$field_id.acabeam.temp \
+        restor map=${linename[$spw_id]}.acamap \
+    	       beam=${linename[$spw_id]}.acabeam \
                mode=residual \
-               model=${linename[$spw_id]}'_'$field_id.acamodel.temp \
-               out=${linename[$spw_id]}'_'$field_id.acaresidual.temp
-    done
+               model=${linename[$spw_id]}.acamodel \
+               out=${linename[$spw_id]}.acaresidual
+
+
+     ### produce 12m to check
+        invert vis=$all12mvis\
+               map=${linename[$spw_id]}.12mmap\
+               beam=${linename[$spw_id]}.12mbeam \
+               options=double,mosaic \
+               imsize='256,256' \
+               cell='0.1'
+
+	clean map=${linename[$spw_id]}.12mmap \
+              beam=${linename[$spw_id]}.12mbeam \
+              out=${linename[$spw_id]}.12mmodel \
+              niters='20000' \
+              cutoff='0.01' \
+              options='positive' \
+#             region='boxes(85,135,146,194)'
+
+     # produce the clean image (for inspection)
+        restor map=${linename[$spw_id]}.12mmap \
+               beam=${linename[$spw_id]}.12mbeam \
+               mode=clean \
+               model=${linename[$spw_id]}.12mmodel \
+               out=${linename[$spw_id]}.12mclean
+
+      # produce the residual image (for insepction)
+        restor map=${linename[$spw_id]}.12mmap \
+               beam=${linename[$spw_id]}.12mbeam \
+               mode=residual \
+               model=${linename[$spw_id]}.12mmodel \
+               out=${linename[$spw_id]}.12mresidual
 
   done
 
@@ -269,51 +293,35 @@ then
   
   for spw_id in $spw
   do
-    for field_id in $fields_7m
-    do 
 		
-      if [ -e ${linename[$spw_id]}'_'$field_id.acamodel.regrid.temp ]; then
-          rm -rf ${linename[$spw_id]}'_'$field_id.acamodel.regrid.temp
-      fi
-
-      # regridding the model image to the original imagesize
-      regrid in=${linename[$spw_id]}'_'$field_id.acamodel.temp \
-             tin='DCN_3to2.acamap.temp' \
-	     out=${linename[$spw_id]}'_'$field_id.acamodel.regrid.temp
-
-#	     tin=${linename[$spw_id]}'_'$field_id.acamap.temp \
-
-    done
-
-    acavis="${linename[$spw_id]}_1.acamodel.regrid.temp","${linename[$spw_id]}_2.acamodel.regrid.temp","${linename[$spw_id]}_3.acamodel.regrid.temp","${linename[$spw_id]}_4.acamodel.regrid.temp"
-
-    if [ -e ${linename[$spw_id]}.acamodel.regrid.pbcor.temp ]; then
-       rm -rf ${linename[$spw_id]}.acamodel.regrid.pbcor.temp
-    fi
-
-
-    # correct the aca primary beam to the model
-    linmos in=$acavis \
-           out=${linename[$spw_id]}.acamodel.regrid.pbcor.temp
-
-
-    if [ -e ${linename[$spw_id]}.acamodel.regrid.pbcor.demos.temp1 ]; then
-    	rm -rf ${linename[$spw_id]}.acamodel.regrid.pbcor.demos.temp1
-    fi
-	
-    # implement (i.e., multiply) the 12m array primary beam
     for field_id in $fields_12m
     do 
-	
-      demos map=${linename[$spw_id]}.acamodel.regrid.pbcor.temp \
-            vis=$name_12m'_spw'$spw_id'_'$field_id'.miriad' \
-            out=${linename[$spw_id]}'_'$field_id.acamodel.regrid.pbcor.demos.temp
-	
-      if [ -e ${linename[$spw_id]}'_'$field_id.acamodel.regrid.pbcor.demos.temp ]; then
-      	rm -rf ${linename[$spw_id]}'_'$field_id.acamodel.regrid.pbcor.demos.temp
+
+      if [ -e ${linename[$spw_id]}'_re-'$field_id.acamodel.demos ]; then
+        rm -rf ${linename[$spw_id]}'_re-'$field_id.acamodel.demos
       fi
 
-      mv ${linename[$spw_id]}'_'$field_id.acamodel.regrid.pbcor.demos.temp1 ${linename[$spw_id]}'_'$field_id.acamodel.regrid.pbcor.demos.temp
+      # implement (i.e., multiply) the 12m array primary beam
+      demos map=${linename[$spw_id]}.acamodel \
+            vis=$name_12m'_spw'$spw_id'_'$field_id'.miriad' \
+            out=${linename[$spw_id]}'_re-'$field_id.acamodel.demos
+	
+      if [ -e ${linename[$spw_id]}'_re-'$field_id.acamodel.demos ]; then
+      	rm -rf ${linename[$spw_id]}'_re-'$field_id.acamodel.demos
+      fi
+
+      mv ${linename[$spw_id]}'_re-'$field_id.acamodel.demos1 ${linename[$spw_id]}'_re-'$field_id.acamodel.demos
+
+
+      # primary beam correction
+      if [ -e ${linename[$spw_id]}'_re-'$field_id.acamodel.demos.pbcor ]; then
+        rm -rf ${linename[$spw_id]}'_re-'$field_id.acamodel.demos.pbcor
+      fi
+	
+      linmos in=${linename[$spw_id]}'_re-'$field_id.acamodel.demos \
+	     out=${linename[$spw_id]}'_re-'$field_id.acamodel.demos.pbcor
+
+
 
     done
 
@@ -353,7 +361,7 @@ then
 	
         # replacing the visibility amplitude and phase based on the input image model
         uvmodel vis='uv_random.miriad' \
-                model=${linename[$spw_id]}'_'$field_id.acamodel.regrid.pbcor.demos.temp \
+                model=${linename[$spw_id]}'_re-'$field_id.acamodel.demos.pbcor \
                 options='replace,imhead' \
                 out=$name_7m'_spw'$spw_id'_'$field_id'.uvmodel'
 
@@ -362,7 +370,7 @@ then
         uvputhd vis=$name_7m'_spw'$spw_id'_'$field_id'.uvmodel' \
                 hdvar=systemp \
                 type=r \
-                varval='999' \
+                varval='5' \
                 length=1 \
                 out=$name_7m'_spw'$spw_id'_'$field_id'.uvmodel.temp'
 
@@ -418,9 +426,9 @@ then
       clean map=${linename[$spw_id]}.map \
             beam=${linename[$spw_id]}.beam \
             out=${linename[$spw_id]}.model \
-            niters='1000' \
-#	    region='boxes(227,241,367,349)'  \
-            cutoff='0.03'
+            niters='300000' \
+            cutoff='0.009'
+#	    region='boxes(227,241,367,349)'
 
 
       # RESTORING:
@@ -447,17 +455,6 @@ then
              model=${linename[$spw_id]}.model \
              out=${linename[$spw_id]}.residual
 
-
-
-      # FINAL PBCOR:
-  
-      if [ -e ${linename[$spw_id]}.clean.pbcor ]; then
-         rm -rf ${linename[$spw_id]}.clean.pbcor
-      fi
-
-      # the Miriad task to perform primary beam correction
-      linmos in=${linename[$spw_id]}.clean out=${linename[$spw_id]}.clean.pbcor
- 
   done
 fi
 #################################################################
@@ -469,10 +466,6 @@ if [ $if_fitsoutput == 'yes' ]
 then
   for spw_id in $spw
   do 
-
-    fits in=${linename[$spw_id]}.clean.pbcor \
-         op=xyout \
-         out=${linename[$spw_id]}.clean.pbcor.fits
 
     fits in=${linename[$spw_id]}.clean \
          op=xyout \
@@ -491,14 +484,12 @@ then
          out=${linename[$spw_id]}.beam.fits
 
     if [ -e fits_images ]; then
-       mv ${linename[$spw_id]}.clean.pbcor.fits ./fits_images/
        mv ${linename[$spw_id]}.clean.fits ./fits_images/
        mv ${linename[$spw_id]}.residual.fits ./fits_images/
        mv ${linename[$spw_id]}.dirty.fits ./fits_images/
        mv ${linename[$spw_id]}.beam.fits ./fits_images/
     else
        mkdir fits_images
-       mv ${linename[$spw_id]}.clean.pbcor.fits ./fits_images/
        mv ${linename[$spw_id]}.clean.fits ./fits_images/
        mv ${linename[$spw_id]}.residual.fits ./fits_images/
        mv ${linename[$spw_id]}.dirty.fits ./fits_images/
