@@ -1,6 +1,2 @@
-# D/H ratio in the galactic circumnuclear disk (CND)
-
-## Objective
-To determine whether or not the CND is a long-lived structure.
-
+# Data Combination: combine ALMA and ACA data
 
