@@ -1,6 +1,17 @@
 # GCDprogress
 This is a file to record the progress of data combination.
 
+### 2024.May.03
+1. Combine the image based on the example code.
+2. Export more channels to check whether the velocity channels of 7m are corrresponding with 12m.
+
+### 2024.May.02
+1. Replace ***clean*** with ***mossdi***.
+2. Execute the example on the website and remove TP to get the approximate well-combined image.
+
+### 2024.May.01   
+Processing the mosaicked image includes the primary beam correction. The previous problems I met are solved.
+
 ### 2024.Apr.24
 1. Problem   
   ```
