@@ -1,6 +1,9 @@
 # GCDprogress
 This is a file to record the progress of data combination.
 
+### 2024.May.07-10
+Iternatively modify and test the new script named **combine_DCN.sh**.
+
 ### 2024.May.03
 1. Combine the image based on the example code.
 2. Export more channels to check whether the velocity channels of 7m are corrresponding with 12m.
