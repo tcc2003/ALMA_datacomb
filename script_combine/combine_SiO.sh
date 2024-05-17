@@ -26,6 +26,7 @@
 ##### Parameters #########################################
 
 # flow control -------------------------------------------
+<<<<<<< HEAD
 if_setheaders='nyes'
 if_duplicateACA='nyes'
 if_acaim='nyes'
@@ -33,6 +34,15 @@ if_aca2almavis='nyes'
 if_acarewt='yes'
 if_duplicateALL='yes'
 if_imag12mcheck='nyes'
+=======
+if_setheaders='yes'
+if_duplicateACA='yes'
+if_acaim='yes'
+if_imag12mcheck='yes'
+if_aca2almavis='yes'
+if_acarewt='yes'
+if_duplicateALL='yes'
+>>>>>>> 390ac0c (correct the molecule)
 if_finalim='yes'
 if_cleanup='nyes'
 if_reimmerge='nyes'
@@ -40,7 +50,11 @@ if_reimmerge='nyes'
 
 
 # global information -------------------------------------
+<<<<<<< HEAD
 linerestfreq='217.238530' # in GHz unit
+=======
+linerestfreq='217.10498' # in GHz unit
+>>>>>>> 390ac0c (correct the molecule)
 
 # set the starting channel and number of channels
 ch_start="1"
@@ -53,13 +67,19 @@ uvmaxalma=5.0 #****
 # --------------------------------------------------------
 
 # 12m data information
+<<<<<<< HEAD
 path_12m='../data/fits/'
+=======
+>>>>>>> 390ac0c (correct the molecule)
 name_12m='ALMA12m'
 fields_12m=$(seq 0 1 3)
 pbfwhm_12m='26.2'
 
 # 7m data information
+<<<<<<< HEAD
 path_7m='../data/fits/'
+=======
+>>>>>>> 390ac0c (correct the molecule)
 name_7m='ACA7m'
 fields_7m=$(seq 1 1 4)
 pbfwhm_7m='45.57'
@@ -70,6 +90,7 @@ ch='channel,'$num_ch',1,1,1'
 chout='channel,'$num_ch',1,1,1'
 
 # ACA imagiing parameter
+<<<<<<< HEAD
 aca_cell=0.5
 aca_imsize='512,512'
 aca_niters=80000
@@ -79,14 +100,32 @@ aca_cutoff=0.025
 alma_cutoff=0.015
 alma_niters=100000
 alma_cell=0.3
+=======
+aca_cell='0.5'
+aca_imsize='512,512'
+aca_niters='80000'
+aca_cutoff='0.025'
+
+# 12m imaging parameter
+alma_cutoff='0.015'
+alma_niters='100000'
+alma_cell='0.3'
+>>>>>>> 390ac0c (correct the molecule)
 alma_imsize='512,512'
 
 # 12m + ACA imaging parameter
 tsys_aca='1600.0'
+<<<<<<< HEAD
 final_cell=0.3
 final_imsize='512,512'
 final_cutoff=0.0055
 final_niters=30000
+=======
+final_cell='0.3'
+final_imsize='512,512'
+final_cutoff='0.006'
+final_niters='3000000'
+>>>>>>> 390ac0c (correct the molecule)
 
 ##########################################################
 
@@ -101,19 +140,38 @@ then
      for field_id in $fields_12m
      do
         pb="gaus("$pbfwhm_12m")"
+<<<<<<< HEAD
 	puthd in=$name_12m'_spw0_'$field_id'.miriad'/telescop \
               value='single' type=a
         puthd in=$name_12m'_spw0_'$field_id'.miriad'/pbtype \
+=======
+	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/restfreq \
+	      value=$linerestfreq type=d
+
+	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/telescop \
+              value='single' type=a
+        puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/pbtype \
+>>>>>>> 390ac0c (correct the molecule)
               value=$pb type=a
      done
 
    # 7m data
      for field_id in $fields_7m
      do
+<<<<<<< HEAD
         pb="gaus("$pbfwhm_7m")"
         puthd in=$name_7m'_spw0_'$field_id'.miriad'/telescop \
 	      value='single' type=a
 	puthd in=$name_7m'_spw0_'$field_id'.miriad'/pbtype \
+=======
+
+	pb="gaus("$pbfwhm_7m")"
+	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/restfreq \
+              value=$linerestfreq type=d
+        puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/telescop \
+	      value='single' type=a
+	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/pbtype \
+>>>>>>> 390ac0c (correct the molecule)
               value=$pb type=a
      done
 
@@ -131,7 +189,11 @@ then
    mkdir intermediate_vis
 
    # ACA
+<<<<<<< HEAD
    cp -r $name_7m'_spw0_'*'.miriad' ./intermediate_vis/
+=======
+   cp -r $name_7m*'.miriad' ./intermediate_vis/
+>>>>>>> 390ac0c (correct the molecule)
 
 fi
 ##########################################################
@@ -162,6 +224,33 @@ then
 fi
 ##########################################################
 
+<<<<<<< HEAD
+=======
+##### Imaging 12m to check with final image ##############
+if [ $if_imag12mcheck == 'yes' ]
+then
+
+    rm -rf alma.map
+    rm -rf alma.beam
+
+    invert vis=$name_12m'_'*'.miriad' map=alma.map beam=alma.beam robust=2.0 \
+           options=systemp,double,mosaic cell=$alma_cell imsize=$alma_imsize
+
+    rm -rf alma.model
+    mossdi map=alma.map beam=alma.beam out=alma.model gain='0.1' \
+           niters=$alma_niters cutoff=$alma_cutoff
+
+    rm -rf alma.clean
+    rm -rf alma.residual
+    restor map=alma.map beam=alma.beam model=alma.model \
+           mode=clean out=alma.clean
+    restor map=alma.map beam=alma.beam model=alma.model \
+           mode=residual out=alma.residual
+
+
+fi
+##########################################################
+>>>>>>> 390ac0c (correct the molecule)
 
 
 
@@ -236,7 +325,11 @@ fi
 
 
 ##### Manually reweight the ACA visibilities ##########
+<<<<<<< HEAD
 if  [ $if_acarewt == 'yes' ]
+=======
+if [ $if_acarewt == 'yes' ]
+>>>>>>> 390ac0c (correct the molecule)
 then
 
    echo '##### Reweighting ACA visibility assuming Tsys ='$tsys_aca' Kelvin'
@@ -281,6 +374,7 @@ then
 fi
 ##########################################################
 
+<<<<<<< HEAD
 ##### Imaging 12m to check with final image ##############
 if [ $if_imag12mcheck == 'yes' ]; then
 
@@ -306,6 +400,8 @@ fi
 ##########################################################
 
 
+=======
+>>>>>>> 390ac0c (correct the molecule)
 
 ##### Final imaging ######################################
 if [ $if_finalim == 'yes' ]
@@ -314,7 +410,11 @@ then
 
    rm -rf combined.map
    rm -rf combined.beam
+<<<<<<< HEAD
    invert "vis=./final_vis/*" options=systemp,double,mosaic \
+=======
+   invert vis=./final_vis/* options=systemp,double,mosaic \
+>>>>>>> 390ac0c (correct the molecule)
           map=combined.map beam=combined.beam cell=$final_cell imsize=$final_imsize robust=2.0
 
    rm -rf combined.model
