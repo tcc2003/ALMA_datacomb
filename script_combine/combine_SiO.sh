@@ -26,25 +26,26 @@
 ##### Parameters #########################################
 
 # flow control -------------------------------------------
-if_setheaders='yes'
-if_duplicateACA='yes'
-if_acaim='yes'
-if_imag12mcheck='yes'
-if_aca2almavis='yes'
-if_acarewt='yes'
-if_duplicateALL='yes'
-if_finalim='yes'
+if_setheaders='nyes'
+if_duplicateACA='nyes'
+if_acaim='nyes'
+if_imag12mcheck='nyes'
+if_aca2almavis='nyes'
+if_acarewt='nyes'
+if_duplicateALL='nyes'
+if_finalim='nyes'
 if_cleanup='nyes'
-if_reimmerge='nyes'
+if_moment='yes'
 # --------------------------------------------------------
 
 
 # global information -------------------------------------
 linerestfreq='217.10498' # in GHz unit
+spw='0'
 
 # set the starting channel and number of channels
 ch_start="1"
-num_ch="20" #*****
+num_ch="10" #*****
 
 # parameters for aca2almavis
 nptsalma=1500
@@ -71,7 +72,7 @@ chout='channel,'$num_ch',1,1,1'
 aca_cell='0.5'
 aca_imsize='512,512'
 aca_niters='80000'
-aca_cutoff='0.025'
+aca_cutoff='0.03'
 
 # 12m imaging parameter
 alma_cutoff='0.015'
@@ -142,7 +143,7 @@ fi
 
 
 
-##### Imaging ACA visibilities ###########
+##### Imaging ACA visibilities ###########################
 if [ $if_acaim == 'yes' ]
 then
 
@@ -178,7 +179,7 @@ then
 
     rm -rf alma.model
     mossdi map=alma.map beam=alma.beam out=alma.model gain='0.1' \
-           niters=$alma_niters cutoff=$alma_cutoff
+           niters=$alma_niters cutoff=$alma_cutoff options=positive
 
     rm -rf alma.clean
     rm -rf alma.residual
@@ -370,19 +371,16 @@ fi
 
 
 
-##### Re-immerge #########################################
-
-if [ $if_reimmerge == 'yes' ]
+##########################################################
+if [ $if_moment == 'yes' ]
 then
 
+  rm -rf combined.clean.moment0 
+  
+  moment in=combined.clean mom='0' \
+	 out=combined.clean.moment0
 
-
-   rm -rf combined.clean.reimmerge
-   immerge in=combined.clean,TP_12CO.vel.image.regrid.miriad factor=$acatp_conv_f \
-	   out=combined.clean.reimmerge
-
-   rm -rf combined.clean.reimmerge.fits
-   fits in=combined.clean.reimmerge op=xyout out=combined.clean.reimmerge.fits
+  fits in=combined.clean.moment0 op=xyout out=combined.clean.moment0.fits 
 
 fi
 
