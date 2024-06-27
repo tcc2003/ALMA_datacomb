@@ -45,8 +45,8 @@ spw='2'
 molecule='spw2'
 
 # set the starting channel and number of channels
-ch_start='1'
-num_ch='1532' #*****
+ch_start="1"
+num_ch="1" #*****
 
 # parameters for aca2almavis
 nptsalma=1500
