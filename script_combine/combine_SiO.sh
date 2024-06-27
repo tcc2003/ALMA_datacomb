@@ -26,14 +26,14 @@
 ##### Parameters #########################################
 
 # flow control -------------------------------------------
-if_setheaders='nyes'
-if_duplicateACA='nyes'
-if_acaim='nyes'
-if_imag12mcheck='nyes'
-if_aca2almavis='nyes'
-if_acarewt='nyes'
-if_duplicateALL='nyes'
-if_finalim='nyes'
+if_setheaders='yes'
+if_duplicateACA='yes'
+if_acaim='yes'
+if_imag12mcheck='yes'
+if_aca2almavis='yes'
+if_acarewt='yes'
+if_duplicateALL='yes'
+if_finalim='yes'
 if_cleanup='nyes'
 if_moment='yes'
 # --------------------------------------------------------
@@ -42,12 +42,13 @@ if_moment='yes'
 # global information -------------------------------------
 linerestfreq='217.10498' # in GHz unit
 spw='0'
+molecule='SiO'
 
 # set the starting channel and number of channels
 ch_start="1"
-num_ch="10" #*****
+num_ch="1532" #*****
 
-# parameters for aca2almavis
+# parameters for uvrandom in step aca2almavis
 nptsalma=1500
 uvmaxalma=5.0 #****
 
@@ -65,9 +66,6 @@ pbfwhm_7m='45.57'
 
 
 # - - Defining global variables - - - - - - - - - - - - -#
-ch='channel,'$num_ch',1,1,1'
-chout='channel,'$num_ch',1,1,1'
-
 # ACA imagiing parameter
 aca_cell='0.5'
 aca_imsize='512,512'
@@ -84,11 +82,10 @@ alma_imsize='512,512'
 tsys_aca='1600.0'
 final_cell='0.3'
 final_imsize='512,512'
-final_cutoff='0.006'
+final_cutoff='0.007'
 final_niters='3000000'
 
 ##########################################################
-
 
 
 ##### Reset headers to allow Miriad processing ###########
@@ -102,7 +99,6 @@ then
         pb="gaus("$pbfwhm_12m")"
 	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/restfreq \
 	      value=$linerestfreq type=d
-
 	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/telescop \
               value='single' type=a
         puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/pbtype \
@@ -212,7 +208,6 @@ then
         invert vis=$name_12m'_spw0_'$field_id'.miriad'   \
                imsize=$alma_imsize cell=$alma_cell \
                map=single_input.alma_$field_id.temp.miriad beam=temp.beam 
-	#	line=$ch
 
         # applying ALMA primary beam to ACA clean model
 	rm -rf aca.demos
@@ -323,7 +318,7 @@ then
 
    rm -rf combined.model
    mossdi map=combined.map beam=combined.beam out=combined.model gain=0.1 \
-          niters=$final_niters cutoff=$final_cutoff
+          niters=$final_niters cutoff=$final_cutoff options=positive
    
 
    rm -rf combined.clean
@@ -370,18 +365,31 @@ fi
 ##########################################################
 
 
-
 ##########################################################
 if [ $if_moment == 'yes' ]
 then
 
-  rm -rf combined.clean.moment0 
-  
-  moment in=combined.clean mom='0' \
-	 out=combined.clean.moment0
 
-  fits in=combined.clean.moment0 op=xyout out=combined.clean.moment0.fits 
+  rm -rf 7m_$molecule.moment0
+  rm -rf 12m_$molecule.moment0
+  rm -rf combined_$molecule.moment0
+
+  moment in=aca.clean mom='0' \
+         out=aca_$molecule.moment0
+  moment in=alma.clean mom='0' \
+         out=12m_$molecule.moment0
+  moment in=combined.clean mom='0' \
+         out=combined_$molecule.moment0
+
+  rm -rf aca_$molecule.moment0.fits
+  rm -rf 12m_$molecule.moment0.fits
+  rm -rf combined_$molecule.moment0.fits
+
+  fits in=aca_$molecule.moment0 op=xyout out=aca_$molecule.moment0.fits
+  fits in=12m_$molecule.moment0 op=xyout out=12m_$molecule.moment0.fits
+  fits in=combined_$molecule.moment0 op=xyout out=combined_$molecule.moment0.fits
 
 fi
 
 ##########################################################
+
