@@ -1,6 +1,29 @@
 # GCDprogress
 This is a file to record the progress of data combination.
 
+### 2024.Jun.13
+1. Problem
+   ```
+   invert: CVS Revision 1.12, 2012/05/25 12:53:15 UTC
+   Reading the visibility data ...
+   Making cubes with 1532 planes
+   Visibilities accepted: 0
+   ### Warning [invert]:  Visibilities rejected: 8736
+   ### Fatal Error [invert]:  No visibilities to map
+   ```
+2. Reason
+   
+3. Approach
+
+   Work out!
+   ```
+   invert: CVS Revision 1.12, 2012/05/25 12:53:15 UTC
+   Reading the visibility data ...
+   Making cubes with 1532 planes
+   Visibilities accepted: 8736
+   ### Warning [invert]:  Number of channels with no good data: 823
+   ```
+
 ### 2024.May.07-10
 Iternatively modify and test the new script named **combine_DCN.sh**.
 
