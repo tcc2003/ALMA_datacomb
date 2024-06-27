@@ -343,7 +343,6 @@ fi
 ##########################################################
 
 
-
 ##### Removing meta data #################################
 if [ $if_cleanup == 'yes' ]
 then
@@ -351,19 +350,13 @@ then
    rm -rf ./*uvmodel*
    rm -rf ./*regrid*
    rm -rf ./*temp*
-   rm -rf ./single_input.miriad
-   rm -rf ./single_input*.restor.miriad
-   rm -rf ./single_input*.residual.miriad
    rm -rf ./temp.*
-   rm -rf ./*.temp
    rm -rf ./uv_random.miriad
-   rm -rf ./acatp*
    rm -rf ./intermediate_vis
    rm -rf ./*demos*
-   rm -rf ./*deconv*
+   
 fi
 ##########################################################
-
 
 ##########################################################
 if [ $if_moment == 'yes' ]
