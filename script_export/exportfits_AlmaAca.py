@@ -43,9 +43,8 @@ all_7m_ms = [
 
 
 # The fields and spectral windows to export
-all_spwIDs   = range(0,1)
-
-fields_12m = range(1,2)
+all_spwIDs = [0,1,3]
+fields_12m = range(0,4)
 fields_7m  = range(1,5)
 
 # The head of the output FITS file name
@@ -54,34 +53,43 @@ head_12m = 'ALMA12m'
 
 
 # velocity gridding in the output
-#vel_start  = '-1230km/s'
-#vel_width  = '1.57km/s'
-#vel_nchan  = 1532
+vel_start  = '-1230km/s'
+vel_width  = '1.57km/s'
+vel_nchan  = 1532
 
 # the certain high-emission channels for test
 mode = 'velocity'
 outframe = 'LSRK'
 datacolumn = 'data'
-vel_start_test = '102.501km/s'
-vel_width_test = '1.57km/s'
-vel_nchan_test = 2
+#vel_start = '102.501km/s'  
+#vel_width = '1.57km/s'
+#vel_nchan = 10
 
 
 # rest frequencies
 restfreq = {}
 restfreq[0] = '217.238530GHz'
 restfreq[1] = '215.700000GHz'
-restfreq[2] = '223.900000GHz'
+restfreq[2] = '230.900000GHz'
 restfreq[3] = '232.694912GHz'
+
+# channels to substract the continuum
+specs = {}
+specs[0] = '0:1000~1531'
+specs[1] = '0:0~1110'
+specs[2] = ''
+specs[3] = '0:0~90;400~1513'
 
 ##############################################################
 
 
-thesteps = []
+thesteps = [2,3]
 step_title = {
               0: 'Output listobs files',
               1: 'Split individual target source fields in to MS files',
-              2: 'Export the observations of each visibility on each field to FITS',
+              2: 'Substract the continuum',
+              3: 'Export the observations of each visibility on each field to FITS',
+              4: 'move the files',
              }
 
 try:
@@ -148,16 +156,18 @@ if(mystep in thesteps):
                         regridms = True,
                         mode = mode, 
                         outframe = outframe,
-                        nchan = vel_nchan_test, 
-                        start =vel_start_test, 
-                        width = vel_width_test
+                        nchan = vel_nchan, 
+                        start =vel_start, 
+                        width = vel_width
                         )
 
-    ### 12m
-    print('########################################\n')
-    print('Exporting 12m mosaic fields: ', fields_12m)
+          
 
-    for visID in range(len(all_12m_ms)):
+  ### 12m
+  print('########################################\n')
+  print('Exporting 12m mosaic fields: ', fields_12m)
+
+  for visID in range(len(all_12m_ms)):
         vis = all_12m_ms[visID]
 
         for fieldID in fields_12m:
@@ -175,18 +185,58 @@ if(mystep in thesteps):
                             regridms = True,
                             mode = mode,
                             outframe = outframe,
-                            nchan = vel_nchan_test, 
-                            start =vel_start_test,
-                            width = vel_width_test
-    
+                            nchan = vel_nchan, 
+                            start =vel_start,
+                            width = vel_width
                           )
+##################################################################
 
+
+##### Substract the continuum ################################
+mystep = 2
+if(mystep in thesteps):
+  casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
+  print ('Step ', mystep, step_title[mystep])
+
+  ### 7m
+  for visID in range(len(all_7m_ms)):
+    vis = all_7m_ms[visID]
+
+    for fieldID in fields_7m:
+        for spwID in all_spwIDs:
+              
+            ms = head_7m + '_vis' + str(visID)  + '_spw' + str(spwID) + '_' + str(fieldID) + '.ms'
+            contsubms = ms + '.contsub'
+            os.system('rm -rf ' + contsubms )
+            uvcontsub(
+                        vis = ms,
+                        outputvis = contsubms,
+                        fitspec = specs[spwID]
+                        )
+
+  ### 12m
+  for visID in range(len(all_12m_ms)):
+    vis = all_12m_ms[visID]
+
+    for fieldID in fields_12m:
+        for spwID in all_spwIDs:
+              
+            ms = head_12m + '_vis' + str(visID)  + '_spw' + str(spwID) + '_' + str(fieldID) + '.ms'
+            contsubms = ms + '.contsub'
+            os.system('rm -rf ' + contsubms ) 
+            uvcontsub(
+                        vis = ms,
+                        outputvis = contsubms,
+                        fitspec = specs[spwID]
+                        )
+
+
+            
 ##############################################################
-
 
 ##### Export the observations of each visibility on each field to FITS ##########
 
-mystep = 2
+mystep = 3
 if(mystep in thesteps):
   casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
   print ('Step ', mystep, step_title[mystep])
@@ -199,12 +249,12 @@ if(mystep in thesteps):
             for spwID in all_spwIDs:
 
                 filenamehead = head_7m + '_vis' + str(visID) + '_spw' + str(spwID) + '_' + str(fieldID)
-                concatvis = filenamehead + '.ms'
-                fitsfile  = filenamehead + '.fits'
+                contsubvis = filenamehead + '.ms.contsub'
+                fitsfile   = filenamehead + '.fits'
 
                 os.system('rm -rf ' + fitsfile )
                 exportuvfits(
-                              vis = concatvis, datacolumn = 'data',
+                              vis = contsubvis, datacolumn = 'data',
                               fitsfile = fitsfile,
                               multisource = False, combinespw = False
                              )
@@ -217,15 +267,30 @@ if(mystep in thesteps):
             for spwID in all_spwIDs:
 
                 filenamehead = head_12m + '_vis' + str(visID) + '_spw' + str(spwID) + '_' + str(fieldID)
-                concatvis = filenamehead + '.ms'
-                fitsfile  = filenamehead + '.fits'
+                contsubvis = filenamehead + '.ms.contsub'
+                fitsfile   = filenamehead + '.fits'
 
                 os.system('rm -rf ' + fitsfile )
                 exportuvfits(
-                              vis = concatvis, datacolumn = 'data',
+                              vis = contsubvis, datacolumn = 'data',
                               fitsfile = fitsfile,
                               multisource = False, combinespw = False
                              )
 
 
 ###############################################################
+
+##### Move the files ##########################################
+
+#mystep  = 4
+#if(mystep in thesteps):
+#  casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
+#  print ('Step ', mystep, step_title[mystep])
+
+#os.system( 'mv *.fits ../fits/')
+
+################################################################
+
+
+
+
