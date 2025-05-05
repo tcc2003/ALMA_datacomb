@@ -31,22 +31,22 @@ if_duplicateACA='nyes'
 if_acaim='nyes'
 if_imag12mcheck='nyes'
 if_aca2almavis='nyes'
-if_acarewt='yes'
-if_duplicateALL='yes'
-if_finalim='yes'
-if_cleanup='nyes'
+if_acarewt='nyes'
+if_duplicateALL='nyes'
+if_finalim='nyes'
+if_cleanup='yes'
 if_moment='yes'
+
 # --------------------------------------------------------
 
 
 # global information -------------------------------------
-linerestfreq='230.89999' # in GHz unit 
-spw='2'
-molecule='spw2'
+linerestfreq='215.700000'
+spw='1'
 
 # set the starting channel and number of channels
-ch_start='1'
-num_ch='1512' # 1512 = 1532 (original channels) - 20 (nan channels)
+ch_start="1"
+num_ch="1532" #*****
 
 # parameters for aca2almavis
 nptsalma=1500
@@ -64,32 +64,29 @@ name_7m='ACA7m'
 fields_7m=$(seq 1 1 4)
 pbfwhm_7m='45.57'
 
-
 # - - Defining global variables - - - - - - - - - - - - -#
-ch='channel,'$num_ch',1,1,1'
-chout='channel,'$num_ch',1,1,1'
-
 # ACA imagiing parameter
 aca_cell='0.5'
-aca_imsize='512,512'
+aca_imsize='256,256'
 aca_niters='70000'
-aca_cutoff='0.02'
+aca_cutoff='0.032'
 
 # 12m imaging parameter
 alma_cutoff='0.015'
 alma_niters='100000'
 alma_cell='0.3'
-alma_imsize='512,512'
+alma_imsize='256,256'
 
 # 12m + ACA imaging parameter
-tsys_aca='2400'
+tsys_aca='2600.0'
 final_cell='0.3'
 final_imsize='256,256'
 final_cutoff='0.008'
 final_niters='3000000'
 
 ##########################################################
-##########################################################
+
+
 
 ##### Reset headers to allow Miriad processing ###########
 
@@ -100,24 +97,24 @@ then
      for field_id in $fields_12m
      do
         pb="gaus("$pbfwhm_12m")"
-	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'/restfreq \
-	      value=$linerestfreq type=d
-	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'/telescop \
+	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/restfreq \
+              value=$linerestfreq type=d
+	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/telescop \
               value='single' type=a
-        puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'/pbtype \
+        puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/pbtype \
               value=$pb type=a
+
      done
 
    # 7m data
      for field_id in $fields_7m
      do
-
 	pb="gaus("$pbfwhm_7m")"
-	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad.flag'/restfreq \
+	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/restfreq \
               value=$linerestfreq type=d
-        puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad.flag'/telescop \
+        puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/telescop \
 	      value='single' type=a
-	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad.flag'/pbtype \
+	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/pbtype \
               value=$pb type=a
      done
 
@@ -135,7 +132,7 @@ then
    mkdir intermediate_vis
 
    # ACA
-   cp -r $name_7m'_spw'*'.miriad.flag' ./intermediate_vis/
+   cp -r $name_7m*'.miriad' ./intermediate_vis/
 
 fi
 ##########################################################
@@ -150,11 +147,11 @@ then
    rm -rf aca.map
    rm -rf aca.beam
    invert "vis=./intermediate_vis/*" options=systemp,double,mosaic \
-	  map=aca.map beam=aca.beam cell=$aca_cell imsize=$aca_imsize robust=2.0 slop=1
+	  map=aca.map beam=aca.beam cell=$aca_cell imsize=$aca_imsize robust=2.0
 
    rm -rf aca.model    
    mossdi map=aca.map beam=aca.beam out=aca.model gain=0.1 \
-	  niters=$aca_niters cutoff=$aca_cutoff options=positive 
+	  niters=$aca_niters cutoff=$aca_cutoff
 
    rm -rf aca.clean
    rm -rf aca.residual
@@ -172,12 +169,12 @@ then
 
     rm -rf alma.map
     rm -rf alma.beam
-    invert vis=$name_12m'_'*'.miriad.flag' map=alma.map beam=alma.beam robust=2.0 \
+    invert vis=$name_12m'_'*'.miriad' map=alma.map beam=alma.beam robust=2.0 \
            options=systemp,double,mosaic cell=$alma_cell imsize=$alma_imsize
 
     rm -rf alma.model
     mossdi map=alma.map beam=alma.beam out=alma.model gain='0.1' \
-           niters=$alma_niters cutoff=$alma_cutoff options=positive
+           niters=$alma_niters cutoff=$alma_cutoff
 
     rm -rf alma.clean
     rm -rf alma.residual
@@ -185,6 +182,8 @@ then
            mode=clean out=alma.clean
     restor map=alma.map beam=alma.beam model=alma.model \
            mode=residual out=alma.residual
+
+
 fi
 ##########################################################
 
@@ -205,7 +204,7 @@ then
 
 	rm -rf single_input.alma_$field_id.temp.miriad
 	rm -rf temp.beam
-        invert vis=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'   \
+        invert vis=$name_12m'_spw'$spw'_'$field_id'.miriad'   \
                imsize=$alma_imsize cell=$alma_cell \
                map=single_input.alma_$field_id.temp.miriad beam=temp.beam 
 	#	line=$ch
@@ -214,7 +213,7 @@ then
 	rm -rf aca.demos
 	rm -rf aca.demos1
 
-        demos map=aca.model vis=$name_12m'_spw'$spw'_'$field_id'.miriad.flag' out=aca.demos
+        demos map=aca.model vis=$name_12m'_spw'$spw'_'$field_id'.miriad' out=aca.demos
 	mv aca.demos1 aca.demos
 
 
@@ -293,7 +292,7 @@ then
    mkdir final_vis
 
    # 12m
-   cp -r $name_12m'_'*'.miriad.flag' ./final_vis/
+   cp -r $name_12m'_'*'.miriad' ./final_vis/
 
    # ACA
    cp -r single_input.alma_*.uvmodel.rewt.miriad ./final_vis/
@@ -347,49 +346,26 @@ then
    rm -rf ./*uvmodel*
    rm -rf ./*regrid*
    rm -rf ./*temp*
-   rm -rf ./temp.*
    rm -rf ./uv_random.miriad
    rm -rf ./intermediate_vis
    rm -rf ./*demos*
 
 fi
-#########################################################
+##########################################################
 
 
 ##########################################################
 if [ $if_moment == 'yes' ]
 then
 
+  outname='spw'$spw'.moment0'
+  rm -rf $outname
 
-  rm -rf 7m_$molecule.moment0
-  rm -rf 12m_$molecule.moment0
-  rm -rf combined_$molecule.moment0
-
-#  moment in=aca.clean mom='0' \
-#         out=aca_$molecule.moment0
-#  moment in=alma.clean mom='0' \
-#         out=12m_$molecule.moment0
   moment in=combined.clean mom='0' \
-         out=combined_$molecule.moment0
+         out=$outname
+
 fi
 
 ##########################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

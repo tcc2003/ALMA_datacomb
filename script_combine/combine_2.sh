@@ -30,25 +30,24 @@ if_setheaders='nyes'
 if_duplicateACA='nyes'
 if_acaim='nyes'
 if_imag12mcheck='nyes'
-if_aca2almavis='yes'
-if_acarewt='yes'
-if_duplicateALL='yes'
-if_finalim='yes'
-if_cleanup='nyes'
+if_aca2almavis='nyes'
+if_acarewt='nyes'
+if_duplicateALL='nyes'
+if_finalim='nyes'
+if_cleanup='yes'
 if_moment='yes'
 # --------------------------------------------------------
 
 
 # global information -------------------------------------
-linerestfreq='217.10498' # in GHz unit
-spw='0'
-molecule='SiO'
+linerestfreq='230.900000' # in GHz unit 
+spw='2'
 
 # set the starting channel and number of channels
-ch_start="1"
-num_ch="1532" #*****
+ch_start='1'
+num_ch='1512' # 1512 = 1532 (original channels) - 20 (nan channels)
 
-# parameters for uvrandom in step aca2almavis
+# parameters for aca2almavis
 nptsalma=1500
 uvmaxalma=5.0 #****
 
@@ -68,25 +67,25 @@ pbfwhm_7m='45.57'
 # - - Defining global variables - - - - - - - - - - - - -#
 # ACA imagiing parameter
 aca_cell='0.5'
-aca_imsize='512,512'
-aca_niters='80000'
-aca_cutoff='0.03'
+aca_imsize='256,256'
+aca_niters='70000'
+aca_cutoff='0.02'
 
 # 12m imaging parameter
 alma_cutoff='0.015'
 alma_niters='100000'
 alma_cell='0.3'
-alma_imsize='512,512'
+alma_imsize='256,256'
 
 # 12m + ACA imaging parameter
-tsys_aca='1600.0'
+tsys_aca='2400'
 final_cell='0.3'
 final_imsize='256,256'
-final_cutoff='0.007'
+final_cutoff='0.008'
 final_niters='3000000'
 
 ##########################################################
-
+##########################################################
 
 ##### Reset headers to allow Miriad processing ###########
 
@@ -97,11 +96,11 @@ then
      for field_id in $fields_12m
      do
         pb="gaus("$pbfwhm_12m")"
-	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/restfreq \
+	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'/restfreq \
 	      value=$linerestfreq type=d
-	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/telescop \
+	puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'/telescop \
               value='single' type=a
-        puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad'/pbtype \
+        puthd in=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'/pbtype \
               value=$pb type=a
      done
 
@@ -110,11 +109,11 @@ then
      do
 
 	pb="gaus("$pbfwhm_7m")"
-	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/restfreq \
+	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad.flag'/restfreq \
               value=$linerestfreq type=d
-        puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/telescop \
+        puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad.flag'/telescop \
 	      value='single' type=a
-	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad'/pbtype \
+	puthd in=$name_7m'_spw'$spw'_'$field_id'.miriad.flag'/pbtype \
               value=$pb type=a
      done
 
@@ -132,14 +131,14 @@ then
    mkdir intermediate_vis
 
    # ACA
-   cp -r $name_7m*'.miriad' ./intermediate_vis/
+   cp -r $name_7m'_spw'*'.miriad.flag' ./intermediate_vis/
 
 fi
 ##########################################################
 
 
 
-##### Imaging ACA visibilities ###########################
+##### Imaging ACA visibilities ###########
 if [ $if_acaim == 'yes' ]
 then
 
@@ -151,7 +150,7 @@ then
 
    rm -rf aca.model    
    mossdi map=aca.map beam=aca.beam out=aca.model gain=0.1 \
-	  niters=$aca_niters cutoff=$aca_cutoff options=positive
+	  niters=$aca_niters cutoff=$aca_cutoff
 
    rm -rf aca.clean
    rm -rf aca.residual
@@ -169,13 +168,12 @@ then
 
     rm -rf alma.map
     rm -rf alma.beam
-
-    invert vis=$name_12m'_'*'.miriad' map=alma.map beam=alma.beam robust=2.0 \
+    invert vis=$name_12m'_'*'.miriad.flag' map=alma.map beam=alma.beam robust=2.0 \
            options=systemp,double,mosaic cell=$alma_cell imsize=$alma_imsize
 
     rm -rf alma.model
     mossdi map=alma.map beam=alma.beam out=alma.model gain='0.1' \
-           niters=$alma_niters cutoff=$alma_cutoff options=positive
+           niters=$alma_niters cutoff=$alma_cutoff
 
     rm -rf alma.clean
     rm -rf alma.residual
@@ -183,8 +181,6 @@ then
            mode=clean out=alma.clean
     restor map=alma.map beam=alma.beam model=alma.model \
            mode=residual out=alma.residual
-
-
 fi
 ##########################################################
 
@@ -205,16 +201,18 @@ then
 
 	rm -rf single_input.alma_$field_id.temp.miriad
 	rm -rf temp.beam
-        invert vis=$name_12m'_spw0_'$field_id'.miriad'   \
+        invert vis=$name_12m'_spw'$spw'_'$field_id'.miriad.flag'   \
                imsize=$alma_imsize cell=$alma_cell \
                map=single_input.alma_$field_id.temp.miriad beam=temp.beam 
+	#	line=$ch
 
         # applying ALMA primary beam to ACA clean model
 	rm -rf aca.demos
 	rm -rf aca.demos1
 
-        demos map=aca.model vis=$name_12m'_spw0_'$field_id'.miriad' out=aca.demos
+        demos map=aca.model vis=$name_12m'_spw'$spw'_'$field_id'.miriad.flag' out=aca.demos
 	mv aca.demos1 aca.demos
+
 
         # regrid ACA maps
         rm -rf single_input.alma_$field_id.regrid.miriad
@@ -291,7 +289,7 @@ then
    mkdir final_vis
 
    # 12m
-   cp -r $name_12m'_'*'.miriad' ./final_vis/
+   cp -r $name_12m'_'*'.miriad.flag' ./final_vis/
 
    # ACA
    cp -r single_input.alma_*.uvmodel.rewt.miriad ./final_vis/
@@ -312,7 +310,7 @@ then
 
    rm -rf combined.model
    mossdi map=combined.map beam=combined.beam out=combined.model gain=0.1 \
-          niters=$final_niters cutoff=$final_cutoff options=positive
+          niters=$final_niters cutoff=$final_cutoff
    
 
    rm -rf combined.clean
@@ -337,6 +335,7 @@ fi
 ##########################################################
 
 
+
 ##### Removing meta data #################################
 if [ $if_cleanup == 'yes' ]
 then
@@ -348,27 +347,39 @@ then
    rm -rf ./uv_random.miriad
    rm -rf ./intermediate_vis
    rm -rf ./*demos*
-   
+
 fi
-##########################################################
+#########################################################
+
 
 ##########################################################
 if [ $if_moment == 'yes' ]
 then
+  
+  outname='spw'$spw'.moment0'
+  rm -rf $outname
 
-
-  rm -rf 7m_$molecule.moment0
-  rm -rf 12m_$molecule.moment0
-  rm -rf combined_$molecule.moment0
-
-#  moment in=aca.clean mom='0' \
-#         out=aca_$molecule.moment0
-#  moment in=alma.clean mom='0' \
-#         out=12m_$molecule.moment0
   moment in=combined.clean mom='0' \
-         out=combined_$molecule.moment0
+         out=$outname
 
-fi
-
+fi 
 ##########################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
