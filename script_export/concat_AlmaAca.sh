@@ -1,10 +1,11 @@
 #!/bin/bash
 
-if_fitsin='nyes'
+if_fitsin='yes'
 if_uvaver='yes'
 
-spw=$(seq 0 1 0)
+spw=$(seq 0 1 3)
 
+dir_data='../fits/'
 # 12m information
 vis_12m=$(seq 0 1 3)
 head_12m='ALMA12m'
@@ -19,7 +20,7 @@ fields_7m=$(seq 1 1 4)
 declare -A restfreq
 restfreq[0]=217.238530
 restfreq[1]=215.700000
-restfreq[2]=223.900000
+restfreq[2]=230.900000
 restfreq[3]=232.694912
 
 
@@ -37,7 +38,7 @@ then
       do  
           infile=$head_7m'_vis'$vis_ID'_spw'$spw_ID'_'$field_ID
           rm -rf $infile'.miriad'
-          fits in=$infile'.fits' op='uvin' out=$infile'.miriad'
+          fits in=$dir_data$infile'.fits' op='uvin' out=$infile'.miriad'
       done
     done
 
@@ -48,7 +49,7 @@ then
       do  
           infile=$head_12m'_vis'$vis_ID'_spw'$spw_ID'_'$field_ID
           rm -rf $infile'.miriad'
-          fits in=$infile'.fits' op='uvin' out=$infile'.miriad'
+          fits in=$dir_data$infile'.fits' op='uvin' out=$infile'.miriad'
       done
     done
 
@@ -85,9 +86,11 @@ then
         rm -rf $outfile
       fi
 
-      echo ${visarr_7m[*]}
+#      echo ${visarr_7m[*]}
 
       uvaver vis=${visarr_7m[*]} options='nocal,nopass,nopol' out=$outfile
+
+      cp -r $outfile ../../all_chan/all_combine$spw_ID/
 
     done
 
@@ -115,9 +118,11 @@ then
         rm -rf $outfile
       fi
       
-      echo ${visarr_12m[*]}
+#      echo ${visarr_12m[*]}
 
       uvaver vis=${visarr_12m[*]} options='nocal,nopass,nopol' out=$outfile
+
+      cp -r $outfile ../../all_chan/all_combine$spw_ID/
 
     done
 

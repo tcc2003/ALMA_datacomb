@@ -43,7 +43,7 @@ all_7m_ms = [
 
 
 # The fields and spectral windows to export
-all_spwIDs = [0,1,3]
+all_spwIDs = range(0,4)
 fields_12m = range(0,4)
 fields_7m  = range(1,5)
 
@@ -61,9 +61,6 @@ vel_nchan  = 1532
 mode = 'velocity'
 outframe = 'LSRK'
 datacolumn = 'data'
-#vel_start = '102.501km/s'  
-#vel_width = '1.57km/s'
-#vel_nchan = 10
 
 
 # rest frequencies
@@ -77,13 +74,13 @@ restfreq[3] = '232.694912GHz'
 specs = {}
 specs[0] = '0:1000~1531'
 specs[1] = '0:0~1110'
-specs[2] = ''
+specs[2] = '0:0~300;1200~1511'
 specs[3] = '0:0~90;400~1513'
 
 ##############################################################
 
 
-thesteps = [2,3]
+thesteps = [1,2,3]
 step_title = {
               0: 'Output listobs files',
               1: 'Split individual target source fields in to MS files',
@@ -157,7 +154,7 @@ if(mystep in thesteps):
                         mode = mode, 
                         outframe = outframe,
                         nchan = vel_nchan, 
-                        start =vel_start, 
+                        start = vel_start, 
                         width = vel_width
                         )
 
@@ -186,7 +183,7 @@ if(mystep in thesteps):
                             mode = mode,
                             outframe = outframe,
                             nchan = vel_nchan, 
-                            start =vel_start,
+                            start = vel_start,
                             width = vel_width
                           )
 ##################################################################
@@ -200,7 +197,6 @@ if(mystep in thesteps):
 
   ### 7m
   for visID in range(len(all_7m_ms)):
-    vis = all_7m_ms[visID]
 
     for fieldID in fields_7m:
         for spwID in all_spwIDs:
@@ -216,8 +212,7 @@ if(mystep in thesteps):
 
   ### 12m
   for visID in range(len(all_12m_ms)):
-    vis = all_12m_ms[visID]
-
+    
     for fieldID in fields_12m:
         for spwID in all_spwIDs:
               
@@ -243,7 +238,6 @@ if(mystep in thesteps):
 
   ### 7m
   for visID in range(len(all_7m_ms)):
-    vis = all_7m_ms[visID]
 
     for fieldID in fields_7m:
             for spwID in all_spwIDs:
@@ -261,7 +255,6 @@ if(mystep in thesteps):
 
   ### 12m
   for visID in range(len(all_12m_ms)):
-    vis = all_12m_ms[visID]
 
     for fieldID in fields_12m:
             for spwID in all_spwIDs:
