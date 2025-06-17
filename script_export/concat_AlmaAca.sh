@@ -90,7 +90,7 @@ then
 
       uvaver vis=${visarr_7m[*]} options='nocal,nopass,nopol' out=$outfile
 
-      cp -r $outfile ../../all_chan/all_combine$spw_ID/
+#      cp -r $outfile ../../combine_all_chan/"all_combine$spw_ID"/
 
     done
 
@@ -122,7 +122,7 @@ then
 
       uvaver vis=${visarr_12m[*]} options='nocal,nopass,nopol' out=$outfile
 
-      cp -r $outfile ../../all_chan/all_combine$spw_ID/
+#      cp -r $outfile ../../combine_all_chan/"all_combine$spw_ID"/
 
     done
 
