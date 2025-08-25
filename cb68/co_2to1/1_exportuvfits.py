@@ -3,6 +3,7 @@ import os
 ##############################################################
 '''
   Exporting Pipeline calibrated CASA MS to FITS files
+  CASA version : 6.2.0
 '''
 ##### Define variables #######################################
 
