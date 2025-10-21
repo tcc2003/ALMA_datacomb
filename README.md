@@ -5,8 +5,8 @@ The main processing follows the [ALMICA](https://github.com/baobabyoo/almica).
 
 ### Data
 Two datasets are used. You can download them from the ALMA Science Archive by entering the project ID:
-- SgrA : `2015.1.00149.S`   
-- CB68 : `2022.1.00131.S`   
+- SgrA : `2015.1.00149.S` (7m, 12m)   
+- CB68 : `2022.1.00131.S` (7m, 12m ,TP)   
 
 ### Requirement
 - CASA (mainly for exporting MS)   
