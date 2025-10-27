@@ -1,10 +1,10 @@
 #!/bin/bash
-if_fitsin='yes'
+if_fitsin='myes'
 if_uvaver='yes'
 
 molecule='co_2to1'
 
-dir_data='./'
+dir_data='../1_fits/'
 
 # 7m information
 visnum_7m=$(seq 0 1 1)

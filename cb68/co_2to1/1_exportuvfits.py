@@ -3,16 +3,16 @@ import os
 ##############################################################
 '''
   Exporting Pipeline calibrated CASA MS to FITS files
-  CASA version : 6.2.0
 '''
 ##### Define variables #######################################
 
 # The CASA MS to export
 ms_path_7m = '../../calibrated/7m_13fields/'
 all_7m_ms = [               
-               os.path.join(ms_path_7m, 'uid___A002_X10a341d_X46df.ms.split'),
-               os.path.join(ms_path_7m, 'uid___A002_X10a341d_X4a19.ms.split')
+               os.path.join(ms_path_7m, 'uid___A002_X10a341d_X46df.ms'),
+               os.path.join(ms_path_7m, 'uid___A002_X10a341d_X4a19.ms')
             ]
+
 
 # The fields and spectral windows to export
 CO_spwID_7m = '34'
@@ -24,14 +24,13 @@ fields_7m = range(0,13)
 head_7m = 'aca7m'
 
 # velocity gridding in the output
-vel_start  = '-25km/s' #end : 39 km/s
-vel_width  = '0.16km/s'
+vel_start  = '-25.0248km/s' #end : 39 km/s
+vel_width  = '0.159km/s'
 vel_nchan  = 400
 
 # the certain high-emission channels for test
 mode = 'velocity'
 outframe = 'LSRK'
-datacolumn = 'data'
 
 # rest frequency (central frequency in spw setup)
 restfreq = '230.538GHz'
@@ -66,8 +65,8 @@ if(mystep in thesteps):
 
   for vis in all_7m_ms:
     listfile = vis + '.listobs'
-    os.system('rm -rf ' + listfile)
-    listobs(vis = vis, listfile = listfile)
+#    os.system('rm -rf ' + listfile)
+#    listobs(vis = vis, listfile = listfile)
 
 ##############################################################
 
@@ -94,18 +93,17 @@ if(mystep in thesteps):
         # split CO 2-1 data
         mstransform(
                      vis = vis, 
-                     datacolumn = datacolumn,
                      outputvis  = splitms,
-                     field = str(fieldID), 
+                     field = str(fieldID+3), 
 					 spw   = CO_spwID_7m,
-                     restfreq = restfreq,
-                     regridms = True,
-					 mode  = mode,
-					 outframe = outframe,
-					 nchan = vel_nchan,
-					 start = vel_start,
-					 width = vel_width
-                   )
+                     restfreq = restfreq )
+#                     regridms = True,
+#					 mode  = mode,
+#					 outframe = outframe,
+#					 nchan = vel_nchan,
+#					 start = vel_start,
+#					 width = vel_width
+#                   )
 
 #################################################################################
 
@@ -124,7 +122,7 @@ if(mystep in thesteps):
         
         uvcontsub(
                    vis = split_ms,
-				   fitspw = '0:20~120;300~380',
+				   fitspw = '0:20~120;400~500',
 				   want_cont = True
 				 )
 
@@ -148,7 +146,6 @@ if(mystep in thesteps):
       os.system('rm -rf ' + fits )
       exportuvfits(
                     vis = vis, 
-					datacolumn = 'data',
                     fitsfile = fits,
                     multisource = False, 
 					combinespw = False
