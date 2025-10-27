@@ -96,10 +96,11 @@ if(mystep in thesteps):
                      outputvis  = splitms,
                      field = str(fieldID+3), 
 					 spw   = CO_spwID_7m,
-                     restfreq = restfreq )
-#                     regridms = True,
-#					 mode  = mode,
-#					 outframe = outframe,
+                     restfreq = restfreq,
+                     regridms = True,
+					 mode  = mode,
+					 outframe = outframe 
+					)
 #					 nchan = vel_nchan,
 #					 start = vel_start,
 #					 width = vel_width
@@ -112,6 +113,8 @@ mystep = 2
 if(mystep in thesteps):
   casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
   print ('Step ', mystep, step_title[mystep])
+  
+  os.system('rm -rf '+ '*.contsub *.cont')
 
   ### 7m
   for visID in range(len(all_7m_ms)):
@@ -119,11 +122,11 @@ if(mystep in thesteps):
 	
     for fieldID in fields_7m:
         split_ms = head_7m + '_vis' + str(visID) + '_' + molecule + '_' + str(fieldID) + '.ms'
-        
+		
         uvcontsub(
                    vis = split_ms,
 				   fitspw = '0:20~120;400~500',
-				   want_cont = True
+				   want_cont = False
 				 )
 
 #################################################################################

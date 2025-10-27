@@ -1,5 +1,5 @@
 #!/bin/bash
-if_fitsin='myes'
+if_fitsin='yes'
 if_uvaver='yes'
 
 molecule='co_2to1'
