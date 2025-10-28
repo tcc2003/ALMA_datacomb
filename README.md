@@ -1,4 +1,4 @@
-# Combine ALMA, ACA, and TP observations
+# Combine ALMA, ACA and TP observations
 ### Introduction
 This repository documents my workflow and scripts for combining ALMA single-dish and interferometric observations.
 The main processing follows the [ALMICA](https://github.com/baobabyoo/almica). 
